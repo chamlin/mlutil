@@ -16,26 +16,74 @@ my $threads = { };
 for my $filename (@filenames) {  do_file ($stats, $filename) }
 
 ready_stats ($stats);
-print STDERR Dumper $stats;
 dump_stats ($stats);
+dump_static_threads ($stats);
 
+#print STDERR Dumper $stats;
 
 
 ########### subs
 
 sub dump_stats {
     my ($stats) = @_;
+    open my $fh, ">", "stack-stats.out";
+
     foreach my $sid (sort { $stats->{sig_sort_keys}{$b} <=> $stats->{sig_sort_keys}{$a} } (keys %{$stats->{sig_sort_keys}})) {
-        print "\n=========================================================\n";
+        print $fh "\n=========================================================\n";
         foreach my $file_index (0 .. $#{$stats->{filenames}}) {
             # avoid many rows of zeros
             if (sum (@{$stats->{sig_counts}[$file_index]{$sid}}) > 0) {
-                print "@{$stats->{sig_counts}[$file_index]{$sid}}  - $stats->{filenames}[$file_index]\n";
+                print $fh "@{$stats->{sig_counts}[$file_index]{$sid}}  - $stats->{filenames}[$file_index]\n";
             }
         }
-        print "@{$stats->{sig_count_totals}{$sid}}  - totals\n";
-        print "$stats->{sig_text}{$sid}";
+        print $fh "@{$stats->{sig_count_totals}{$sid}}  - totals\n";
+        print $fh "$stats->{sig_text}{$sid}\n";
     }
+
+    close $fh;
+}
+
+sub dump_static_threads {
+    my ($stats) = @_;
+    open my $fh, ">", "static-threads.out";
+
+    my $static_threads = {};
+
+    my $thread_sigs = $stats->{thread_sigs};
+    foreach my $thread_sig (keys %{$thread_sigs}) {
+        my $thread_info = $stats->{thread_uids}{$thread_sig};
+        my $number_of_samples = $#{$stats->{file_dates}{$thread_info->{filename}}} + 1;
+        my $is_static = 1;
+        my $stack_hash = $thread_sigs->{$thread_sig}[0];
+        # all samples have to exist and match first
+        foreach my $index (1 .. $number_of_samples-1) {
+            unless ($thread_sigs->{$thread_sig}[$index] && $stack_hash eq $thread_sigs->{$thread_sig}[$index]) {
+                $is_static = 0;
+                last;
+            }
+        }
+        if ($is_static) {
+            push @{$static_threads->{$stack_hash}}, {
+                filename => $thread_info->{filename},
+                id => $thread_info->{id}
+            };
+        }
+    }
+
+    print $fh "================= static threads ==================\n\n";
+
+    foreach my $stack_hash (sort { $#{$static_threads->{$a}} <=> $#{$static_threads->{$b}} } keys %{$static_threads}) {
+        my $stack_occurs = $static_threads->{$stack_hash};
+        print $fh "=======================================\n\n";
+        print $fh $stats->{sig_text}{$stack_hash};
+        print $fh "\n\n";
+        foreach my $occurrence (@{$stack_occurs}) {
+            print $fh "file $occurrence->{filename}, thread id $occurrence->{id}.\n";
+        }
+        print $fh "\n\n";
+    }
+
+    close $fh;
 }
 
 sub ready_stats {
@@ -81,10 +129,11 @@ sub do_file {
         } elsif ($line =~ /\d\d:\d\d:\d\d/) {
             # guess it's a time-date line?
             push @{$stats->{file_dates}{$filename}}, $line;
-        } else {
             if (scalar (@{$current->{lines}})) {
                 $stats->{dump}++;
             }
+        } else {
+            print STDERR "What is this line: $line.\n";
         }    
     }
     close ($fh);
