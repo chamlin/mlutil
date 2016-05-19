@@ -11,11 +11,12 @@ use List::Util qw(sum);
 my @filenames = @ARGV;
 
 my $stats = { dump => 0 };
+my $threads = { };
 
 for my $filename (@filenames) {  do_file ($stats, $filename) }
 
 ready_stats ($stats);
-#print STDERR Dumper $stats;
+print STDERR Dumper $stats;
 dump_stats ($stats);
 
 
@@ -68,14 +69,15 @@ sub do_file {
     $stats->{dump} = 0;
     my $current = { lines => [] };
     while (my $line = <$fh>) {
+        $line =~ s/[\r\n]+//;
         if ($line =~ /^#\d/) {
             push @{$current->{lines}}, $line;
         } elsif ($line =~ /^Thread .*Thread (0x[^\s]+) /) {
-            my $thread_id = "$filename-$1";
+            my $thread_id = $1;
             if (scalar (@{$current->{lines}})) {
                 file_thread ($stats, $current);
             }
-            $current = { tid => $thread_id };
+            $current = { tid => $thread_id, filename => $filename };
         } else {
             if (scalar (@{$current->{lines}})) {
                 $stats->{dump}++;
@@ -89,13 +91,15 @@ sub do_file {
 
 sub file_thread {
     my ($stats, $thread) = @_;
-    $thread->{text} = join ('', @{$thread->{lines}});
+    $thread->{text} = join ("\n", @{$thread->{lines}});
     my $sig_text = join ('', map { my $t = $_; $t =~ s/#\d+\s+\S+ in //; $t } @{$thread->{lines}});
     $thread->{sig} = md5_hex ($sig_text);
     # increment sig count for this dump
     ${$stats->{sig_counts}[$#{$stats->{filenames}}]{$thread->{sig}}}[$stats->{dump}]++;
     # increment sig count for this thread
-    #${$stats->{thread_sigs}{$thread->{tid}}}{$thread->{sig}}++;
+    my $thread_uid = md5_hex ("$thread->{filename}}{$thread->{tid}}");
+    $stats->{thread_uids}{$thread_uid} = { filename => $thread->{filename}, id => $thread->{tid} };
+    push @{$stats->{thread_sigs}{$thread_uid}}, $thread->{sig};
     # add (or replace . . .)
     $stats->{sig_text}{$thread->{sig}} = $thread->{text};
 }
