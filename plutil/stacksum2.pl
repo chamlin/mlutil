@@ -78,6 +78,9 @@ sub do_file {
                 file_thread ($stats, $current);
             }
             $current = { tid => $thread_id, filename => $filename };
+        } elsif ($line =~ /\d\d:\d\d:\d\d/) {
+            # guess it's a time-date line?
+            push @{$stats->{file_dates}{$filename}}, $line;
         } else {
             if (scalar (@{$current->{lines}})) {
                 $stats->{dump}++;
