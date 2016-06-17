@@ -7,6 +7,7 @@ use Data::Dumper;
 use Digest::MD5 qw(md5 md5_hex md5_base64);
 use List::Util qw(sum);
 
+my $MAX_STATIC_THREADS_LIST = 20;
 
 my @filenames = @ARGV;
 
@@ -77,8 +78,13 @@ sub dump_static_threads {
         print $fh "=======================================\n\n";
         print $fh $stats->{sig_text}{$stack_hash};
         print $fh "\n\n";
-        foreach my $occurrence (@{$stack_occurs}) {
-            print $fh "file $occurrence->{filename}, thread id $occurrence->{id}, sig $stack_hash.\n";
+        my $threads = scalar @{$stack_occurs};
+        if ($threads > $MAX_STATIC_THREADS_LIST) {
+            print $fh "Over $MAX_STATIC_THREADS_LIST occurrences of sig $stack_hash ($threads total).\n";
+        } else {
+            foreach my $occurrence (@{$stack_occurs}) {
+                print $fh "file $occurrence->{filename}, thread id $occurrence->{id}, sig $stack_hash.\n";
+            }
         }
         print $fh "\n\n";
     }
