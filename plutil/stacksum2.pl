@@ -29,7 +29,7 @@ sub dump_stats {
     open my $fh, ">", "stack-stats.out";
 
     foreach my $sid (sort { $stats->{sig_sort_keys}{$b} <=> $stats->{sig_sort_keys}{$a} } (keys %{$stats->{sig_sort_keys}})) {
-        print $fh "\n=========================================================\n";
+        print $fh "\n========================================================= $sid\n";
         foreach my $file_index (0 .. $#{$stats->{filenames}}) {
             # avoid many rows of zeros
             if (sum (@{$stats->{sig_counts}[$file_index]{$sid}}) > 0) {
@@ -78,7 +78,7 @@ sub dump_static_threads {
         print $fh $stats->{sig_text}{$stack_hash};
         print $fh "\n\n";
         foreach my $occurrence (@{$stack_occurs}) {
-            print $fh "file $occurrence->{filename}, thread id $occurrence->{id}.\n";
+            print $fh "file $occurrence->{filename}, thread id $occurrence->{id}, sig $stack_hash.\n";
         }
         print $fh "\n\n";
     }
