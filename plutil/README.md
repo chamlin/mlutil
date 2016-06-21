@@ -12,7 +12,7 @@ summarize pstacks.  Give stacks with counts in each pstack in the movie.  Ordere
 
 summarize pstacks.  Give stacks with counts in each pstack in the movie.  Ordered roughly by number of nodes, then by threads.  Works with multiple files.
 
-next:  tag/name via signature
+next:  sample date-time saved
 
 ## pull_threads.pl
 
