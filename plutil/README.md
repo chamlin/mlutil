@@ -1,5 +1,7 @@
 # plutil (perl stuph)
 
+See also https://gist.github.com/chamlin for stuph that's so small it doesn't make it here
+
 ## config_diffs.pl
 
 run in a dir with ML config files, and it will produce ordered sets of changes/diffs with timestamps and filesets.
