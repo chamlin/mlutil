@@ -1,4 +1,4 @@
-# plutil (Crappy Buggy Perl™)
+# plutil (perl stuph)
 
 ## config_diffs.pl
 
