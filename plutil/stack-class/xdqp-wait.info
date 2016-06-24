@@ -1,0 +1,14 @@
+#NAME Idle thread waiting for XDQP request
+#TAGS idle, XDQP
+poll () from /lib64/libc.so.6
+svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+svc::Socket::recv(char*, char*, unsigned int) ()
+svc::Sockbuf::underflow() ()
+svc::Sockbuf::xsgetn(char*, long) ()
+xdmp::XDQPServerConnection::recv(xdmp::XDQPServerListener const&, std::vector<unsigned int, std::allocator<unsigned int> >&) ()
+xdmp::XDQPServerConnection::run() ()
+xdmp::XDQPServerConnectionThread::run() ()
+svc::Thread::top() ()
+runThread ()
+start_thread () from /lib64/libpthread.so.0
+clone () from /lib64/libc.so.6

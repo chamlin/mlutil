@@ -7,11 +7,15 @@ no warnings 'recursion';
 use Data::Dumper;
 use Digest::MD5 qw(md5 md5_hex md5_base64);
 use List::Util qw(sum);
+use FindBin;
 
 my $MAX_STATIC_THREADS_LIST = 20;
 
 my @filenames = @ARGV;
 
+my $info_dir = "$FindBin::Bin/stack-class";
+
+my $stats = { dump => 0, classes => read_stack_info_files ($info_dir) };
 my $stats = { dump => 0 };
 my $threads = { };
 
@@ -27,6 +31,28 @@ dump_tree ($stats);
 
 
 ########### subs
+
+sub read_stack_info_files {
+    my ($info_dir) = @_;
+    my $retval = { matchers => [] };
+    my @info_files = <$info_dir/*.info>;
+    foreach my $filename (@info_files) {
+        my $matcher = { filename => $filename };
+        open my $fh, "<", $filename or die "Can't open $filename for read.\n";
+        while (my $line = <$fh>) {
+            $line =~ s/[\r\n]+$//;
+            my ($operator, $value) = ($line =~ /^#([\S]+)\s+(.*)/);
+            if (! $operator) { push @{$matcher->{lines}}, $line; }
+            elsif ($operator eq 'NAME') { push @{$matcher->{name}}, $value }
+            elsif ($operator eq 'TAGS') { push @{$matcher->{tags}}, split ('\s*,\s*', $value) }
+            else { print STDERR "Unknown operator $operator?\n"; }
+        }
+        close $fh;
+        $matcher->{full_hash} = md5_hex (join ('', @{$matcher->{lines}}));
+        push @{$retval->{matchers}}, $matcher;
+    }
+    return $retval;
+}
 
 sub dump_stats {
     my ($stats) = @_;
