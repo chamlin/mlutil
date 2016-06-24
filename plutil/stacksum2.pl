@@ -17,8 +17,10 @@ my $threads = { };
 for my $filename (@filenames) {  do_file ($stats, $filename) }
 
 ready_stats ($stats);
+
 dump_stats ($stats);
 dump_static_threads ($stats);
+dump_tree ($stats);
 
 #print STDERR Dumper $stats;
 
@@ -92,6 +94,23 @@ sub dump_static_threads {
     close $fh;
 }
 
+sub dump_tree {
+    my ($stats) = @_;
+    open my $fh, ">", "stack-tree.out";
+    _dump_tree ($fh, $stats->{stack_tree});
+    close $fh;
+}
+
+sub _dump_tree {
+    my ($fh, $tree) = @_;
+
+    foreach my $call (sort { $tree->{$b}{count} <=> $tree->{$a}{count} } keys %{$tree}) {
+        my $call_info = $tree->{$call};
+        print $fh "\t" x $call_info->{level}, "$call_info->{count}: $call\n";
+        _dump_tree ($fh, $call_info->{kids});
+    }
+}
+
 sub ready_stats {
     my ($stats) = @_;
     my $dumps = $stats->{dump};
@@ -106,12 +125,33 @@ sub ready_stats {
             $stats->{sig_sort_keys}{$sid} = join ('-', map { sprintf("%08d", $_) } @$sig_counts);
         }
     }
+    # sort key for aggregates
     foreach my $sid (keys %{$stats->{sig_count_totals}}) {
         #$stats->{sig_sort_keys}{$sid} = join ('-', map { sprintf("%08d", $_) } @{$stats->{sig_count_totals}{$sid}});
         $stats->{sig_sort_keys}{$sid} = 
              sum (@{$stats->{sig_count_totals}{$sid}})
              *
              10 ** sum ( map { $_ > 0 } @{$stats->{sig_count_totals}{$sid}} )
+    }
+    # stack_tree
+    my $stack_tree = {};
+    $stats->{stack_tree} = $stack_tree;
+    foreach my $sig (keys $stats->{sig_count_totals}) {
+        my $level = 0;
+        my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
+        my $text = $stats->{sig_text}{$sig};
+        my $ref = $stack_tree;
+        foreach my $line (reverse split (/[\r\n]+/, $text)) {
+            $line =~ /^\S+\s+\S+\s+in\s+(.+)/;
+            my $call = $1;
+            if (exists $ref->{$call}) {
+                $ref->{$call}{count} += $sig_count;
+            } else {
+                $ref->{$call} = { count => $sig_count, kids => {}, level => $level };
+            }
+            $ref = $ref->{$call}{kids};
+            $level++;
+        }
     }
 }
 
