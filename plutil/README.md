@@ -1,4 +1,6 @@
-# plutil
+# plutil (perl stuph)
+
+See also https://gist.github.com/chamlin for stuph that's so small it doesn't make it here
 
 ## config_diffs.pl
 
@@ -12,7 +14,7 @@ summarize pstacks.  Give stacks with counts in each pstack in the movie.  Ordere
 
 summarize pstacks.  Give stacks with counts in each pstack in the movie.  Ordered roughly by number of nodes, then by threads.  Works with multiple files.
 
-next:  tag/name via signature
+next:  sample date-time saved
 
 ## pull_threads.pl
 
