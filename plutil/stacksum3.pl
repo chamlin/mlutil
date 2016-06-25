@@ -32,6 +32,7 @@ print STDERR Dumper $stats;
 
 ########### subs
 
+# get classifier config(s)
 sub read_stack_info_files {
     my ($info_dir) = @_;
     my $retval = { matchers => [] };
@@ -43,7 +44,6 @@ sub read_stack_info_files {
             $line =~ s/[\r\n]+$//;
             # deal with blank lines
             if (length $line == 0) {
-                print "line break;\n";
                 # just nothing happening
                 if    (! $matcher) { next }
                 # something missing at end of def
@@ -69,13 +69,20 @@ sub read_stack_info_files {
             else { print STDERR "Unknown operator $operator?\n"; }
         }
         close $fh;
-        #$matcher->{full_hash} = md5_hex (join ('', @{$matcher->{lines}}));
-        #$matcher->{full_hash} = md5_hex (join ('', @{$matcher->{lines}}));
-        push @{$retval->{matchers}}, $matcher;
+        # flush last one
+        if ($matcher && ! ($matcher->{lines} && $matcher->{name} && $matcher->{tags})) {
+            print "Matcher missing name or tags or lines (discarded): ", Dumper ($matcher), "\n";
+        } else {
+            push @{$retval->{matchers}}, $matcher;
+        }
+    }
+    foreach my $matcher (@{$retval->{matchers}}) {
+        $matcher->{sum_line} = sum_line (@{$matcher->{lines}});
     }
     return $retval;
 }
 
+# show aggregate stats
 sub dump_stats {
     my ($stats) = @_;
     open my $fh, ">", "stack-stats.out";
@@ -89,12 +96,13 @@ sub dump_stats {
             }
         }
         print $fh "@{$stats->{sig_count_totals}{$sid}}  - totals\n";
-        print $fh "$stats->{sig_text}{$sid}\n";
+        print $fh join ("\n", @{$stats->{sig_lines}{$sid}}), "\n";
     }
 
     close $fh;
 }
 
+# show threads that don't change
 sub dump_static_threads {
     my ($stats) = @_;
     open my $fh, ">", "static-threads.out";
@@ -127,7 +135,7 @@ sub dump_static_threads {
     foreach my $stack_hash (sort { $#{$static_threads->{$a}} <=> $#{$static_threads->{$b}} } keys %{$static_threads}) {
         my $stack_occurs = $static_threads->{$stack_hash};
         print $fh "=======================================\n\n";
-        print $fh $stats->{sig_text}{$stack_hash};
+        print $fh join ("\n", @{$stats->{sig_lines}{$stack_hash}}), "\n";
         print $fh "\n\n";
         my $threads = scalar @{$stack_occurs};
         if ($threads > $MAX_STATIC_THREADS_LIST) {
@@ -143,6 +151,7 @@ sub dump_static_threads {
     close $fh;
 }
 
+# dump out info to run and create flamegraph
 sub dump_flame_info {
     my ($tree) = @_;
     open my $fh, ">", "flame-info.out";
@@ -153,8 +162,8 @@ sub dump_flame_info {
 
     foreach my $sig (keys $stats->{sig_count_totals}) {
         my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
-        my $text = $stats->{sig_text}{$sig};
-        my $sum_line = _sum_line (reverse split (/[\r\n]+/, $text));
+        my $lines = $stats->{sig_lines}{$sig};
+        my $sum_line = sum_line (reverse @$lines);
         print $fh "$sum_line $sig_count\n";
     }
 
@@ -162,7 +171,7 @@ sub dump_flame_info {
 }
 
 # create lines summary for flamegraph output and matcher checking
-sub _sum_line {
+sub sum_line {
     my (@lines) = @_;
     my @calls = ();
     foreach my $line (@lines) {
@@ -183,6 +192,7 @@ sub dump_tree {
     close $fh;
 }
 
+# recursive tree printer
 sub _dump_tree {
     my ($fh, $tree) = @_;
 
@@ -193,12 +203,13 @@ sub _dump_tree {
     }
 }
 
+# compile from basic info
 sub ready_stats {
     my ($stats) = @_;
     my $dumps = $stats->{dump};
     # uggh, fill in sparse counts, then create sort key (highest, to lowest, each slice)
     foreach my $file_counts (@{$stats->{sig_counts}}) {
-        foreach my $sid (keys %{$stats->{sig_text}}) {
+        foreach my $sid (keys %{$stats->{sig_lines}}) {
             my $sig_counts = $file_counts->{$sid};
             foreach my $i (0 .. $dumps) {
                 unless (exists $file_counts->{$sid}[$i]) { $file_counts->{$sid}[$i] = 0 }
@@ -215,15 +226,18 @@ sub ready_stats {
              *
              10 ** sum ( map { $_ > 0 } @{$stats->{sig_count_totals}{$sid}} )
     }
+    # sig_sums
     # stack_tree
     my $stack_tree = {};
+    foreach my $sig (keys $stats->{sig_lines}) {
+        
+    }
     $stats->{stack_tree} = $stack_tree;
     foreach my $sig (keys $stats->{sig_count_totals}) {
         my $level = 0;
         my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
-        my $text = $stats->{sig_text}{$sig};
         my $ref = $stack_tree;
-        foreach my $line (reverse split (/[\r\n]+/, $text)) {
+        foreach my $line (reverse @{$stats->{sig_lines}{$sig}}) {
             $line =~ /^\S+\s+\S+\s+in\s+(.+)/;
             my $call = $1;
             if (exists $ref->{$call}) {
@@ -281,6 +295,6 @@ sub file_thread {
     $stats->{thread_uids}{$thread_uid} = { filename => $thread->{filename}, id => $thread->{tid} };
     push @{$stats->{thread_sigs}{$thread_uid}}, $thread->{sig};
     # add (or replace . . .)
-    $stats->{sig_text}{$thread->{sig}} = $thread->{text};
+    $stats->{sig_lines}{$thread->{sig}} = $thread->{lines};
 }
 
