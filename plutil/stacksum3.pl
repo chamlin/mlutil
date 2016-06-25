@@ -16,7 +16,6 @@ my @filenames = @ARGV;
 my $info_dir = "$FindBin::Bin/stack-class";
 
 my $stats = { dump => 0, classes => read_stack_info_files ($info_dir) };
-my $stats = { dump => 0 };
 my $threads = { };
 
 for my $filename (@filenames) {  do_file ($stats, $filename) }
@@ -26,8 +25,9 @@ ready_stats ($stats);
 dump_stats ($stats);
 dump_static_threads ($stats);
 dump_tree ($stats);
+dump_flame_info ($stats);
 
-#print STDERR Dumper $stats;
+print STDERR Dumper $stats;
 
 
 ########### subs
@@ -35,20 +35,42 @@ dump_tree ($stats);
 sub read_stack_info_files {
     my ($info_dir) = @_;
     my $retval = { matchers => [] };
-    my @info_files = <$info_dir/*.info>;
+    my @info_files = <$info_dir/stack-class-*.config>;
     foreach my $filename (@info_files) {
-        my $matcher = { filename => $filename };
         open my $fh, "<", $filename or die "Can't open $filename for read.\n";
+        my $matcher = undef;
         while (my $line = <$fh>) {
             $line =~ s/[\r\n]+$//;
-            my ($operator, $value) = ($line =~ /^#([\S]+)\s+(.*)/);
-            if (! $operator) { push @{$matcher->{lines}}, $line; }
-            elsif ($operator eq 'NAME') { push @{$matcher->{name}}, $value }
+            # deal with blank lines
+            if (length $line == 0) {
+                print "line break;\n";
+                # just nothing happening
+                if    (! $matcher) { next }
+                # something missing at end of def
+                elsif (! ($matcher->{lines} && $matcher->{name} && $matcher->{tags})) {
+                    print "Matcher missing name or tags or lines (discarded): ", Dumper ($matcher), "\n";
+                    $matcher = undef;
+                # a def, that is good
+                } else {
+                    push @{$retval->{matchers}}, $matcher;
+                    $matcher = undef;
+                }
+                next;
+            }
+            # deal with thread lines
+            if ($line =~ /^#/) {
+                push @{$matcher->{lines}}, $line;
+                next;
+            }
+            # deal with other stuff
+            my ($operator, $value) = ($line =~ /^([\S]+)\s+(.*)/);
+            if ($operator eq 'NAME') { push @{$matcher->{name}}, $value }
             elsif ($operator eq 'TAGS') { push @{$matcher->{tags}}, split ('\s*,\s*', $value) }
             else { print STDERR "Unknown operator $operator?\n"; }
         }
         close $fh;
-        $matcher->{full_hash} = md5_hex (join ('', @{$matcher->{lines}}));
+        #$matcher->{full_hash} = md5_hex (join ('', @{$matcher->{lines}}));
+        #$matcher->{full_hash} = md5_hex (join ('', @{$matcher->{lines}}));
         push @{$retval->{matchers}}, $matcher;
     }
     return $retval;
@@ -119,6 +141,39 @@ sub dump_static_threads {
     }
 
     close $fh;
+}
+
+sub dump_flame_info {
+    my ($tree) = @_;
+    open my $fh, ">", "flame-info.out";
+
+    # stack_tree
+    my $stack_tree = {};
+    $stats->{stack_tree} = $stack_tree;
+
+    foreach my $sig (keys $stats->{sig_count_totals}) {
+        my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
+        my $text = $stats->{sig_text}{$sig};
+        my $sum_line = _sum_line (reverse split (/[\r\n]+/, $text));
+        print $fh "$sum_line $sig_count\n";
+    }
+
+    close $fh;
+}
+
+# create lines summary for flamegraph output and matcher checking
+sub _sum_line {
+    my (@lines) = @_;
+    my @calls = ();
+    foreach my $line (@lines) {
+        $line =~ s/^\S+\s+\S+\s+in\s+//;
+        $line =~ s/\s+from\s+.*//;
+        $line =~ s/\(\)\s*$//;
+        $line =~ s/ const$//;
+        $line =~ s/\s//g;
+        push @calls, $line;
+    }
+    return join (';', @calls);
 }
 
 sub dump_tree {
