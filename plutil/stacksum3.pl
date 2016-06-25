@@ -162,9 +162,7 @@ sub dump_flame_info {
 
     foreach my $sig (keys $stats->{sig_count_totals}) {
         my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
-        my $lines = $stats->{sig_lines}{$sig};
-        my $sum_line = sum_line (reverse @$lines);
-        print $fh "$sum_line $sig_count\n";
+        print $fh "$stats->{sig_sums}{$sig} $sig_count\n";
     }
 
     close $fh;
@@ -227,11 +225,21 @@ sub ready_stats {
              10 ** sum ( map { $_ > 0 } @{$stats->{sig_count_totals}{$sid}} )
     }
     # sig_sums
-    # stack_tree
     my $stack_tree = {};
     foreach my $sig (keys $stats->{sig_lines}) {
-        
+        $stats->{sig_sums}{$sig} = sum_line (@{$stats->{sig_lines}{$sig}});
     }
+    # assign sig_classes
+    foreach my $sig (keys $stats->{sig_sums}) {
+        foreach my $matcher (@{$stats->{classes}{matchers}}) {
+            my $matcher_sum_line = $matcher->{sum_line};
+            my $match = quotemeta ($matcher_sum_line);
+            if ($stats->{sig_sums}{$sig} =~ m/$match/) {
+                $stats->{sig_classes}{$sig} = $matcher;
+            }
+        }
+    }
+    # stack_tree
     $stats->{stack_tree} = $stack_tree;
     foreach my $sig (keys $stats->{sig_count_totals}) {
         my $level = 0;
