@@ -41,7 +41,7 @@ sub read_stack_info_files {
         open my $fh, "<", $filename or die "Can't open $filename for read.\n";
         my $matcher = undef;
         while (my $line = <$fh>) {
-            $line =~ s/[\r\n]+$//;
+            $line =~ s/[\s\r\n]*$//;
             # deal with blank lines
             if (length $line == 0) {
                 # just nothing happening
@@ -55,25 +55,31 @@ sub read_stack_info_files {
                     push @{$retval->{matchers}}, $matcher;
                     $matcher = undef;
                 }
-                next;
             }
             # deal with thread lines
-            if ($line =~ /^#/) {
-                push @{$matcher->{lines}}, $line;
-                next;
+            elsif  ($line =~ /^#/) {
+                if ($matcher) { push @{$matcher->{lines}}, $line; }
+                else { print STDERR "Thread line |$line| with no tags/name in $filename.\n"; }
             }
-            # deal with other stuff
-            my ($operator, $value) = ($line =~ /^([\S]+)\s+(.*)/);
-            if ($operator eq 'NAME') { push @{$matcher->{name}}, $value }
-            elsif ($operator eq 'TAGS') { push @{$matcher->{tags}}, split ('\s*,\s*', $value) }
-            else { print STDERR "Unknown operator $operator?\n"; }
+            # deal with tag lines
+            elsif ($line =~ /^=/) {
+                unless ($matcher) { $matcher = { lines => [] } }; 
+                my ($operator, $value) = ($line =~ /^=\s*([\S]+)\s+(.*)/);
+                if ($operator eq 'NAME') { $matcher->{name} = $value; }
+                elsif ($operator eq 'TAGS') { push @{$matcher->{tags}}, split ('\s*,\s*', $value) }
+                else { print STDERR "Unknown operator $operator?\n"; }
+            } else {
+                print STDERR "What means: |$line| from file $filename?\n";
+            }
         }
         close $fh;
         # flush last one
-        if ($matcher && ! ($matcher->{lines} && $matcher->{name} && $matcher->{tags})) {
-            print "Matcher missing name or tags or lines (discarded): ", Dumper ($matcher), "\n";
-        } else {
-            push @{$retval->{matchers}}, $matcher;
+        if ($matcher) {
+            if (! ($matcher->{lines} && $matcher->{name} && $matcher->{tags})) {
+                print "Matcher missing name or tags or lines (discarded): ", Dumper ($matcher), "\n";
+            } else {
+                push @{$retval->{matchers}}, $matcher;
+            }
         }
     }
     foreach my $matcher (@{$retval->{matchers}}) {
@@ -229,15 +235,28 @@ sub ready_stats {
     foreach my $sig (keys $stats->{sig_lines}) {
         $stats->{sig_sums}{$sig} = sum_line (@{$stats->{sig_lines}{$sig}});
     }
-    # assign sig_classes
+    # assign sig_classes/sig_matches
     foreach my $sig (keys $stats->{sig_sums}) {
+        # check for matches
         foreach my $matcher (@{$stats->{classes}{matchers}}) {
             my $matcher_sum_line = $matcher->{sum_line};
             my $match = quotemeta ($matcher_sum_line);
             if ($stats->{sig_sums}{$sig} =~ m/$match/) {
-                $stats->{sig_classes}{$sig} = $matcher;
+                push @{$stats->{sig_matches}{$sig}}, $matcher;
             }
         }
+        unless ($stats->{sig_matches}{$sig})  { next }
+        # summary
+        foreach my $match (@{$stats->{sig_matches}{$sig}}) {
+            push @{$stats->{sig_classes}{$sig}{names}}, $match->{name};
+            foreach my $tag (@{$match->{tags}}) {
+                #push @{$stats->{sig_classes}{$sig}{tags}}, $tag;
+                $stats->{sig_classes}{$sig}{tags}{$tag} = 1;
+            }
+        }
+        # get back keys for unique list
+        my @unique_tags = keys %{$stats->{sig_classes}{$sig}{tags}};
+        $stats->{sig_classes}{$sig}{tags} = \@unique_tags;
     }
     # stack_tree
     $stats->{stack_tree} = $stack_tree;
