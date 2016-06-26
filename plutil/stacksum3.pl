@@ -102,6 +102,11 @@ sub dump_stats {
             }
         }
         print $fh "@{$stats->{sig_count_totals}{$sid}}  - totals\n";
+        my $classes = $stats->{sig_classes}{$sid};
+        if ($classes) {
+            if ($classes->{names}) { print $fh join ("\n", map { "> " . $_ } @{$classes->{names}}), "\n"; }
+            if ($classes->{tags}) { print $fh "tags: ", join (' ', @{$classes->{tags}}), "\n"; }
+        }
         print $fh join ("\n", @{$stats->{sig_lines}{$sid}}), "\n";
     }
 
@@ -245,6 +250,7 @@ sub ready_stats {
                 push @{$stats->{sig_matches}{$sig}}, $matcher;
             }
         }
+        # get out if no match
         unless ($stats->{sig_matches}{$sig})  { next }
         # summary
         foreach my $match (@{$stats->{sig_matches}{$sig}}) {
