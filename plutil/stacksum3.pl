@@ -166,15 +166,19 @@ sub dump_static_threads {
 sub dump_flame_info {
     my ($tree) = @_;
     open my $fh, ">", "flame-info.out";
+    open my $reverse_fh, ">", "flame-reversed-info.out";
 
     foreach my $sig (keys $stats->{sig_count_totals}) {
         my $noflame = grep { $_ eq 'noflame' } @{$stats->{sig_classes}{$sig}{tags}};
         if ($noflame)  { next }
         my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
-        my $call_stack = 'MarkLogic;' . sum_line (reverse @{$stats->{sig_lines}{$sig}});
+        my $call_stack = sum_line (reverse @{$stats->{sig_lines}{$sig}});
         print $fh "$call_stack $sig_count\n";
+        my $reverse_call_stack = $stats->{sig_sums}{$sig};
+        print $reverse_fh "$reverse_call_stack $sig_count\n";
     }
 
+    close $reverse_fh;
     close $fh;
 }
 
