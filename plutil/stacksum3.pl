@@ -27,7 +27,7 @@ dump_static_threads ($stats);
 dump_tree ($stats);
 dump_flame_info ($stats);
 
-print STDERR Dumper $stats;
+#print STDERR Dumper $stats;
 
 
 ########### subs
@@ -47,8 +47,8 @@ sub read_stack_info_files {
                 # just nothing happening
                 if    (! $matcher) { next }
                 # something missing at end of def
-                elsif (! ($matcher->{lines} && $matcher->{name} && $matcher->{tags})) {
-                    print "Matcher missing name or tags or lines (discarded): ", Dumper ($matcher), "\n";
+                elsif (! (scalar @{$matcher->{lines}} && $matcher->{name} && $matcher->{tags})) {
+                    print STDERR "Matcher missing name or tags or lines (discarded): ", Dumper ($matcher), "\n";
                     $matcher = undef;
                 # a def, that is good
                 } else {
@@ -75,8 +75,8 @@ sub read_stack_info_files {
         close $fh;
         # flush last one
         if ($matcher) {
-            if (! ($matcher->{lines} && $matcher->{name} && $matcher->{tags})) {
-                print "Matcher missing name or tags or lines (discarded): ", Dumper ($matcher), "\n";
+            if (! (scalar @{$matcher->{lines}} && $matcher->{name} && $matcher->{tags})) {
+                print STDERR "Matcher missing name or tags or lines (discarded): ", Dumper ($matcher), "\n";
             } else {
                 push @{$retval->{matchers}}, $matcher;
             }
@@ -167,13 +167,12 @@ sub dump_flame_info {
     my ($tree) = @_;
     open my $fh, ">", "flame-info.out";
 
-    # stack_tree
-    my $stack_tree = {};
-    $stats->{stack_tree} = $stack_tree;
-
     foreach my $sig (keys $stats->{sig_count_totals}) {
+        my $noflame = grep { $_ eq 'noflame' } @{$stats->{sig_classes}{$sig}{tags}};
+        if ($noflame)  { next }
         my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
-        print $fh "$stats->{sig_sums}{$sig} $sig_count\n";
+        my $call_stack = 'MarkLogic;' . sum_line (reverse @{$stats->{sig_lines}{$sig}});
+        print $fh "$call_stack $sig_count\n";
     }
 
     close $fh;
