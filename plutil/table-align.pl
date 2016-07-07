@@ -6,10 +6,12 @@ use Data::Dumper;
 my $sep = "   ";
 
 my %findings = ();
+my @input_lines = <>;
 my @lines = ();
-foreach my $line (<>) {
+my $tab_lines = grep { /\t/ } @input_lines;
+foreach my $line (@input_lines) {
     chomp $line;
-    my @parts = split (/\s+/, $line);
+    my @parts = $tab_lines ? split (/\t+/, $line) : split (/\s+/, $line);
     push @lines, \@parts;
     my $max_columns =  $findings{cols};
     my $current =  scalar @parts;
