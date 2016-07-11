@@ -8,7 +8,9 @@ run in a dir with ML config files, and it will produce ordered sets of changes/d
 
 ## stacksum.pl
 
-summarize pstacks.  Give stacks with counts in each pstack in the movie.  Ordered by count, per pstack, descending.
+summarize pstacks.  Give stacks with counts in each pstack in the movie.  Ordered by count, per pstack, descending. Also output for flame graphs.
+
+    for out in flame*-info.out ; do ~/git/FlameGraph/flamegraph.pl --width 1600 $out > $out.svg ; done
 
 ## stacksum2.pl
 
