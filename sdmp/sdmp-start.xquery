@@ -20,6 +20,21 @@ declare function sdmp:get-config-file ($collection, $config-file) {
     return  fn:doc ($uri)
 };
 
+declare function sdmp:main-host-uri-pattern ($collection, $filename) {
+    '*/'||sdmp:get-mangled-dump-host ($collection)||'/*/Forest-Status.xml'
+};
+
+(: returns doc node :)
+declare function sdmp:get-forest-status ($collection, $fid) {
+    let $query := cts:and-query ((
+        cts:collection-query ($collection),
+        cts:element-value-query (xs:QName ('f:forest-id'), fn:string ($fid))
+    ))
+    let $uri-pattern := sdmp:main-host-uri-pattern($collection, 'Forest-Status.xml')
+    let $uri := cts:uri-match ($uri-pattern, (), $query)
+    return fn:doc ($uri)
+};
+
 (: doesn't get replicas/unattached :)
 declare function sdmp:db-forest-sizes ($collection) {
     let $dbs := sdmp:get-config-file ($collection, 'databases.xml')
@@ -33,7 +48,25 @@ declare function sdmp:db-forest-sizes ($collection) {
         return fn:concat ($db-name, ' - ', $assignment/a:forest-name/fn:data(), ': ', $fsize, ' MB')
 };
 
-let $collection := 'xyz-slow'
-return sdmp:db-forest-sizes ($collection)
+(: doesn't get replicas/unattached :)
+declare function sdmp:db-forest-stand-sizes ($collection) {
+    let $dbs := sdmp:get-config-file ($collection, 'databases.xml')
+    let $assigns := sdmp:get-config-file ($collection, 'assignments.xml')   
+    return
+        for $db in $dbs/db:databases/db:database
+        let $db-name := $db/db:database-name/fn:data()
+        for $fid in $db/db:forests/db:forest-id/fn:data()
+        let $forest-name := $assigns/a:assignments/a:assignment[a:forest-id eq $fid]/a:forest-name/fn:data()
+        let $fstat := sdmp:get-forest-status ($collection, $fid)
+        for $stand in $fstat/f:forest-status/f:stands/f:stand
+        let $path := $stand/f:path/fn:data()
+        let $size := $stand/f:disk-size/fn:data()
+        return fn:concat ($db-name, ' - ', $path, ': ', $size, ' MB')
+};
+
+let $collection := 'alm-06-02'
+return (
+sdmp:db-forest-stand-sizes ($collection)
+)
 
 
