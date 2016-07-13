@@ -9,20 +9,29 @@ import module namespace pkg = "http://marklogic.com/manage/package"
       at "/MarkLogic/manage/package/package.xqy";
 
 declare namespace smeta = 'http://marklogic.com/support/meta';
+
+declare namespace host = 'http://marklogic.com/xdmp/status/host';
 declare namespace db = 'http://marklogic.com/xdmp/database';
 declare namespace f = 'http://marklogic.com/xdmp/status/forest';
 declare namespace a = 'http://marklogic.com/xdmp/assignments';
 
 declare variable $sdmp:collection as xs:string := 'NONE-GIVEN';
+declare variable $sdmp:collection-query as cts:query := cts:or-query (());
 
-declare function sdmp:set-collection ($bar) { xdmp:set ($sdmp:collection, $bar) };
+declare function sdmp:set-collection ($bar) {
+    xdmp:set ($sdmp:collection, $bar),
+    xdmp:set ($sdmp:collection-query, cts:collection-query ($sdmp:collection)),
+    if (xdmp:estimate (cts:search (/, $sdmp:collection-query)) > 0) then () 
+    else
+        fn:error(xs:QName("SDMP-BADCOLL"), 'collection '||$sdmp:collection||' has no documents')
+};
 
 declare function sdmp:get-dump-host () {
     sdmp:get-dump-host ($sdmp:collection)
 };
 
 declare function sdmp:get-dump-host ($collection) {
-    cts:search (/smeta:Support-Request, cts:collection-query ($collection))/smeta:Report-Host/fn:string()
+    cts:search (/smeta:Support-Request, $sdmp:collection-query)/smeta:Report-Host/fn:string()
 };
 
 declare function sdmp:get-mangled-dump-host () {
@@ -40,7 +49,7 @@ declare function sdmp:get-config-file ($config-file) {
 
 declare function sdmp:get-config-file ($collection, $config-file) {
     let $mangled_host := sdmp:get-mangled-dump-host ($collection)
-    let $uri := cts:uri-match ('*/'||$mangled_host||'/*/'||$config-file, (), cts:collection-query ($collection))
+    let $uri := cts:uri-match ('*/'||$mangled_host||'/*/'||$config-file, (), $sdmp:collection-query)
     return  fn:doc ($uri)
 };
 
@@ -50,6 +59,16 @@ declare function sdmp:main-host-uri-pattern ($filename) {
 
 declare function sdmp:main-host-uri-pattern ($collection, $filename) {
     '*/'||sdmp:get-mangled-dump-host ($collection)||'/*/Forest-Status.xml'
+};
+
+declare function sdmp:get-host-iowaits () {
+    for $host in cts:search (/host:host-status, $sdmp:collection-query)
+    let $host-name := $host/host:host-name/fn:data()
+    let $iowaits := $host//host:cpu-stat-iowait/fn:data() ! fn:floor (. + 0.5) ! fn:string()
+    order by $host-name
+    return (
+        $host-name||': '||fn:string-join ($iowaits, ', ') 
+    )
 };
 
 (: returns doc node :)
