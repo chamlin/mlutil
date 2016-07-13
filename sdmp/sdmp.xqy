@@ -1,5 +1,12 @@
 xquery version "1.0-ml";
+
 module namespace sdmp = 'http://marklogic.com/support/dump';
+
+import schema namespace dbpkg = "http://marklogic.com/manage/package/databases"
+    at "package-databases.xsd";
+
+import module namespace pkg = "http://marklogic.com/manage/package" 
+      at "/MarkLogic/manage/package/package.xqy";
 
 declare namespace smeta = 'http://marklogic.com/support/meta';
 declare namespace db = 'http://marklogic.com/xdmp/database';
@@ -97,5 +104,51 @@ declare function sdmp:db-forest-stand-sizes ($collection) {
         return fn:concat ($db-name, ' - ', $path, ': ', $size, ' MB')
 };
 
+declare function sdmp:create-db-package ($dbname) {
+    sdmp:create-db-package ($dbname, ())
+};
+
+declare function sdmp:create-db-package ($dbname, $mimetype) {
+    let $pkgname := 'sdmp-pkg-'||fn:replace (sem:uuid-string (), '-', 'x')
+    let $pkgdb := sdmp:get-package-dbconfig ($dbname)
+    return (
+        pkg:create ($pkgname),
+        pkg:put-database ($pkgname, $pkgdb),
+        if ($mimetype) then
+            pkg:get-package ($pkgname, $mimetype)
+        else
+            pkg:get-package ($pkgname),
+        pkg:delete ($pkgname)
+    )
+};
 
 
+declare function sdmp:get-package-dbconfig ($dbname) as element(dbpkg:package-database) {
+    let $dbs := sdmp:get-config-file ('databases.xml')
+    let $config := $dbs/db:databases/db:database[db:database-name eq 'ABCI']
+    let $skips := ('db:database-name', 'db:database-id', 'db:security-database', 'db:schema-database', 'db:triggers-database', 'db:forests') ! xs:QName (.)
+    return
+  <package-database xmlns="http://marklogic.com/manage/package/databases">
+	<metadata>
+		<package-version>2.0</package-version>
+		<user>admin</user>
+		<group>Default</group>
+		<host>{xdmp:hostname()}</host>
+		<timestamp>{fn:current-dateTime ()}</timestamp>
+		<platform>macosx</platform>
+	</metadata>
+    <config>
+      <name>{$dbname}</name>
+      <package-database-properties>
+        { $config/*[fn:not (fn:node-name() = $skips)] }
+      </package-database-properties>
+     <links>
+			<forests-list>
+				<forest-name>{$dbname}-forest</forest-name>
+			</forests-list>
+			<security-database>Security</security-database>
+			<schema-database>Schemas</schema-database>
+		</links>
+    </config>
+  </package-database>
+};
