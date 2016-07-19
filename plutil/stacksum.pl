@@ -23,11 +23,12 @@ for my $filename (@filenames) {  do_file ($stats, $filename) }
 ready_stats ($stats);
 
 dump_stats ($stats);
+dump_sample_times ($stats);
 dump_static_threads ($stats);
 dump_tree ($stats);
 dump_flame_info ($stats);
 
-#print STDERR Dumper $stats;
+# print STDERR Dumper $stats;
 
 
 ########### subs
@@ -86,6 +87,22 @@ sub read_stack_info_files {
         $matcher->{sum_line} = sum_line (@{$matcher->{lines}});
     }
     return $retval;
+}
+
+# show aggregate stats
+sub dump_sample_times {
+    my ($stats) = @_;
+    open my $fh, ">", "stack-sample-times.out";
+
+    print $fh "========================= sample date times ==========================\n";
+    foreach my $file (keys %{$stats->{file_dates}}) {
+        print $fh "\n\n", "$file:\n";
+        foreach my $time (@{$stats->{file_dates}{$file}}) {
+            print $fh "    $time\n";
+        } 
+    }
+
+    close $fh;
 }
 
 # show aggregate stats
