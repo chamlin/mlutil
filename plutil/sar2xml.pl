@@ -58,7 +58,7 @@ foreach my $filename (split /[,;]/, $opts->{f}) {
 
     prep_blocks ($opts, $blocks);
 
-    unless ($opts->{'0'}) { foreach my $block (@$blocks) { dump_block ($opts, $block) } }
+    unless ($opts->{'0'}) { dump_blocks ($opts, $blocks) }
 
     if ($opts->{debug}{blocks}) { print_message ('blocks: ', Dumper $blocks) }
 }
@@ -66,26 +66,15 @@ foreach my $filename (split /[,;]/, $opts->{f}) {
 
 ####### subs
 
-
-sub dump_block {
-    my ($opts, $block) = @_;
-    my %fhs = ();
-    my $title = $block->{title};
-    my $repeats = $block->{repeats} && $opts->{x};
-    my $lines = $block->{lines};
-    foreach my $line (@$lines) {
-        my ($time, $values) = @{split_line ($opts, $line)}{'time', 'values'};
-        unless ($time && scalar @$values) {
-            print_message ("ERROR:  Bad line ignoring (shown in pipes):\n|$line|");
-            next;
+sub dump_blocks {
+    my ($opts, $blocks) = @_;
+    print "<events>\n";
+    foreach my $block (@$blocks) {
+        foreach my $event (@{$block->{events}}) {
+            print $event, "\n";
         }
-        my $start_index = 0;
-        # unless, repeats . . .
-        if ($repeats) { $start_index = 1; }
-        my $row = join ($opts->{s}, ($time, @{$values}[$start_index .. $#{$values}])) . "\n";
-
-        print $row;
     }
+    print "</events>\n";
 }
 
 sub prep_blocks {
