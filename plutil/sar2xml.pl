@@ -88,47 +88,12 @@ sub dump_block {
     }
 }
 
-# { return:  { 'new' -> 0/1, 'fh' -> <fh> }
-sub get_fh {
-    # $fhs->{$fn} = fh
-    my ($fhs, $fn) = @_;
-
-    # default, creates errors
-    my $retval = { 'new' => 0, 'fh' => undef };
-
-    # has open fn
-    if ($fhs->{$fn}) {
-        $retval = { 'new' => 0, 'fh' => $fhs->{$fn} };
-    } else {
-        # if it was false, but key exists, then was open but got closed
-        my $was_open = exists $fhs->{$fn};
-
-        # get OPEN filenames
-        my @filenames = grep { $fhs->{$_} } keys %$fhs;
-
-        if ((scalar @filenames) >= $MAX_FH) {
-            # clear some FH, but leave key, which means we've written (even if currently closed (false))
-            foreach my $to_close ((@filenames)[0]) {
-                close $fhs->{$to_close};
-                $fhs->{$to_close} = 0;
-                if ($opts->{debug}{io}) { print_message ("< $to_close") }
-            }
-        }
-        my $open_op = $was_open ? '>>' : '>';
-        open (my $fh, $open_op, $fn);
-        print "$open_op $fn\n" if $opts->{debug}{io};
-        $fhs->{$fn} = $fh;
-        $retval = { 'new' => (!$was_open), 'fh' => $fh };
-    }
-
-    return $retval;
-}
-
 sub prep_blocks {
     my ($opts, $blocks) = @_;
     my ($date, $node) = ();
     foreach my $block (@$blocks) {
         my $col1 = $block->{columns}[0];
+        # get date
         if ($col1 eq 'Linux') { 
             # set date
             foreach my $col (@{$block->{columns}}) {
@@ -147,9 +112,13 @@ sub prep_blocks {
                     $node = $1;
                 }
             }
+            # really nothing else to do for this block
+            next;
         }
+        # set date (mostly debug)
         $block->{date} = $date;
         $block->{node} = $node;
+        # convert lines
         my $lines = $block->{lines};
         my $cols = $block->{columns};
         my $num_cols = scalar @$cols;
@@ -161,12 +130,27 @@ sub prep_blocks {
             }
             foreach my $line (@$lines) {
                 my $parsed = split_line ($opts, $line);
-                my $date_time = join (' ', ($date, $parsed->{time}));
                 unless (scalar @{$parsed->{values}} == $num_cols) { die "wrong number of columns: $line.\n"; }
+                my $date_time = join ('T', ($date, $parsed->{time}));
+                my $sub_event = undef;
                 for (my $i = 0; $i < $num_cols; $i++) {
-                    push @{$parsed->{elements}}, create_element (xmlize_colname ($cols->[$i]), $parsed->{values}[$i]);
+                    my $col = $cols->[$i];
+                    if ($i == 0 && $col =~ /^[A-Z]+$/) {
+                        # just qualifier for other values
+                        $sub_event = $parsed->{values}[$i];
+                        next;
+                    }
+                    my $event = join ('', (
+                        '<event>',
+                        create_element ('timestamp', $date_time),
+                        create_element ('node', $node),
+                        create_element ('type', $col),
+                        (defined $sub_event ? create_element ('subtype', $sub_event) : ''),
+                        create_element ('value', $parsed->{values}[$i]),
+                        '</event>',
+                    ));
+                    push @{$block->{events}}, $event;
                 }
-                push @{$block->{parsed}}, $parsed;
             }
         }
     }
