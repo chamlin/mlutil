@@ -311,8 +311,11 @@ sub do_file {
     open ($fh, '<', $filename) || die "Can't open $filename.\n";
     $stats->{dump} = 0;
     my $current = { lines => [] };
+    my $line_number = 0;
     while (my $line = <$fh>) {
+        $line_number++;
         $line =~ s/[\r\n]+//;
+        if (length ($line) == 0) { next }
         if ($line =~ /^#\d/) {
             push @{$current->{lines}}, $line;
         } elsif ($line =~ /^Thread .*Thread (0x[^\s]+) /) {
@@ -328,7 +331,7 @@ sub do_file {
                 $stats->{dump}++;
             }
         } else {
-            print STDERR "What is this line: $line.\n";
+            print STDERR "What is this line (file $filename; line $line_number): $line.\n";
         }    
     }
     close ($fh);
