@@ -9,11 +9,14 @@ import module namespace pkg = "http://marklogic.com/manage/package"
       at "/MarkLogic/manage/package/package.xqy";
 
 declare namespace smeta = 'http://marklogic.com/support/meta';
-
-declare namespace host = 'http://marklogic.com/xdmp/status/host';
-declare namespace db = 'http://marklogic.com/xdmp/database';
-declare namespace f = 'http://marklogic.com/xdmp/status/forest';
 declare namespace a = 'http://marklogic.com/xdmp/assignments';
+declare namespace ho = 'http://marklogic.com/xdmp/hosts';
+declare namespace c = 'http://marklogic.com/xdmp/clusters';
+declare namespace g = 'http://marklogic.com/xdmp/group';
+declare namespace f = 'http://marklogic.com/xdmp/forest';
+declare namespace db = 'http://marklogic.com/xdmp/database';
+declare namespace hs = 'http://marklogic.com/xdmp/status/host';
+declare namespace fs = 'http://marklogic.com/xdmp/status/forest';
 
 declare variable $sdmp:collection as xs:string := 'NONE-GIVEN';
 declare variable $sdmp:collection-query as cts:query := cts:or-query (());
@@ -47,6 +50,7 @@ declare function sdmp:get-config-file ($config-file) {
     sdmp:get-config-file ($sdmp:collection, $config-file)
 };
 
+(: returns doc (not root node) :)
 declare function sdmp:get-config-file ($collection, $config-file) {
     let $mangled_host := sdmp:get-mangled-dump-host ($collection)
     let $uri := cts:uri-match ('*/'||$mangled_host||'/*/'||$config-file, (), $sdmp:collection-query)
@@ -61,10 +65,14 @@ declare function sdmp:main-host-uri-pattern ($collection, $filename) {
     '*/'||sdmp:get-mangled-dump-host ($collection)||'/*/Forest-Status.xml'
 };
 
+declare function sdmp:get-host-status ($host-id) {
+    cts:search (/hs:host-status[ho:host-id eq $host-id], $sdmp:collection-query)
+};
+
 declare function sdmp:get-host-iowaits () {
-    for $host in cts:search (/host:host-status, $sdmp:collection-query)
-    let $host-name := $host/host:host-name/fn:data()
-    let $iowaits := $host//host:cpu-stat-iowait/fn:data() ! fn:floor (. + 0.5) ! fn:string()
+    for $host in cts:search (/ho:host-status, $sdmp:collection-query)
+    let $host-name := $host/ho:host-name/fn:data()
+    let $iowaits := $host//ho:cpu-stat-iowait/fn:data() ! fn:floor (. + 0.5) ! fn:string()
     order by $host-name
     return (
         $host-name||': '||fn:string-join ($iowaits, ', ') 
@@ -141,10 +149,26 @@ declare function sdmp:create-db-package ($dbname, $mimetype) {
     )
 };
 
+declare function sdmp:create-db-package ($dbname, $dbs, $mimetype) {
+    let $pkgname := 'sdmp-pkg-'||fn:replace (sem:uuid-string (), '-', 'x')
+    let $pkgdb := sdmp:get-package-dbconfig ($dbname, $dbs)
+    return (
+        pkg:create ($pkgname),
+        pkg:put-database ($pkgname, $pkgdb),
+        if ($mimetype) then
+            pkg:get-package ($pkgname, $mimetype)
+        else
+            pkg:get-package ($pkgname),
+        pkg:delete ($pkgname)
+    )
+};
 
 declare function sdmp:get-package-dbconfig ($dbname) as element(dbpkg:package-database) {
-    let $dbs := sdmp:get-config-file ('databases.xml')
-    let $config := $dbs/db:databases/db:database[db:database-name eq 'ABCI']
+    sdmp:get-package-dbconfig ($dbname, sdmp:get-config-file ('databases.xml'))
+};
+
+declare function sdmp:get-package-dbconfig ($dbname, $dbs) as element(dbpkg:package-database) {
+    let $config := $dbs/db:databases/db:database[db:database-name eq $dbname]
     let $skips := ('db:database-name', 'db:database-id', 'db:security-database', 'db:schema-database', 'db:triggers-database', 'db:forests') ! xs:QName (.)
     return
   <package-database xmlns="http://marklogic.com/manage/package/databases">
