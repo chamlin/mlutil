@@ -25,3 +25,11 @@ extract segfault stack traces from a log file.
 ## sar2csv.pl
 
 convert chunked sar to separate csv files.  run for options.
+
+## sar2xml.pl
+
+convert sar to a big xml file.
+
+suitable for load as
+
+~/mlcp/bin/mlcp.sh import -input_file_path events.xml -input_file_type aggregates -host localhost -port 8000 -username admin -password admin -database logio-content
