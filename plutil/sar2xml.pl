@@ -53,7 +53,7 @@ foreach my $filename (split /[,;]/, $opts->{f}) {
     open(my $fh, "<", $filename);
 
     # get the blocks
-    my $blocks = read_blocks ($fh);
+    my $blocks = read_blocks ($filename, $fh);
     close ($fh);
 
     prep_blocks ($opts, $blocks);
@@ -161,13 +161,23 @@ sub create_element {
 
 # read blank-line delimited blocks
 sub read_blocks {
-    my ($fh) = @_;
+    my ($filename, $fh) = @_;
     my @blocks = ();
+    my $line_number = 0;
     while (1) {
-        my $block = read_block ($fh);
+        my $block = [];
+        while (my $line = <$fh>) {
+            $line_number++;
+            if ($line =~ /^[^\d].* \[sar -/) { $line = '' }
+            if ($line =~ /^Average/) { next }
+            if ($line =~ /^\s*$/) { last }
+            chomp ($line);
+            push @$block, $line;
+        }
         unless (scalar @$block) {
             if (eof ($fh)) { last } else { next }
         }
+
         # header is first line, minus time
         my $header = shift @$block;
         $header =~ s/^\d\d:\d\d:\d\d//;
