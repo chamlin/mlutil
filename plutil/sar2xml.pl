@@ -19,7 +19,10 @@ my $opts = {};
 
 getopts ('0d:f:u', $opts);
 
-if ($opts->{u} or !exists $opts->{f}) {
+# leftovers
+my @filenames = @ARGV;
+
+if ($opts->{u} or scalar @filenames == 0) {
     print "    -d    debug output---comma/semi separated\n";
     print "    -f    file---comma/semicolon separated\n";
     print "    -u    use (this) \n";
@@ -37,8 +40,10 @@ if (exists $opts->{d}) {
 
 if ($opts->{debug}{config}) { print STDERR Dumper \$opts }
 
+print "<events xmlns='http://esereno.com/logging/event'>\n";
+
 # do each file (hmm, maybe only one at a time, or overwrites)
-foreach my $filename (split /[,;]/, $opts->{f}) {
+foreach my $filename (@filenames) {
     if (-f $filename) {
         if ($opts->{debug}{io}) {
             print_message ("< $filename\n")
@@ -61,18 +66,17 @@ foreach my $filename (split /[,;]/, $opts->{f}) {
     if ($opts->{debug}{blocks}) { print_message ('blocks: ', Dumper $blocks) }
 }
 
+print "</events>\n";
 
 ####### subs
 
 sub dump_blocks {
     my ($opts, $blocks) = @_;
-    print "<events xmlns='http://esereno.com/logging/event'>\n";
     foreach my $block (@$blocks) {
         foreach my $event (@{$block->{events}}) {
             print $event, "\n";
         }
     }
-    print "</events>\n";
 }
 
 sub prep_blocks {
