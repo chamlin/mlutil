@@ -13,8 +13,6 @@ $| = 1;
 
 # for debug
 my $BLOCK_LINE_MAX = 9999999;
-# for not blow up
-my $MAX_FH = 200;
 
 my $opts = {};
 
@@ -68,7 +66,7 @@ foreach my $filename (split /[,;]/, $opts->{f}) {
 
 sub dump_blocks {
     my ($opts, $blocks) = @_;
-    print "<events>\n";
+    print "<events xmlns='http://esereno.com/logging/event'>\n";
     foreach my $block (@$blocks) {
         foreach my $event (@{$block->{events}}) {
             print $event, "\n";
@@ -117,7 +115,9 @@ sub prep_blocks {
             unless ($line_0->{time} && $line_1->{time}) {
                 die ("ERROR: Bad time compare:  $lines->[0] eq $lines->[1]\n");
             }
+            my $line_number = 0;
             foreach my $line (@$lines) {
+                $line_number++;
                 my $parsed = split_line ($opts, $line);
                 unless (scalar @{$parsed->{values}} == $num_cols) { die "wrong number of columns: $line.\n"; }
                 my $date_time = join ('T', ($date, $parsed->{time}));
@@ -132,8 +132,11 @@ sub prep_blocks {
                     my $event = join ('', (
                         '<event>',
                         create_element ('timestamp', $date_time),
+                        create_element ('filename', $block->{filename}),
+                        create_element ('linenumber', $line_number),
                         create_element ('node', $node),
-                        create_element ('type', $col),
+                        create_element ('type', 'sar'),
+                        create_element ('name', $col),
                         (defined $sub_event ? create_element ('subtype', $sub_event) : ''),
                         create_element ('value', $parsed->{values}[$i]),
                         '</event>',
@@ -186,6 +189,7 @@ sub read_blocks {
         $header =~ s/\s+$//;
         my @columns = split (/\s+/, $header);
         push @blocks, {
+            filename => $filename,
             header => $header,
             columns => \@columns,
             lines => (scalar (@$block) > $BLOCK_LINE_MAX ? [@{$block}[0 .. $BLOCK_LINE_MAX-1]] : $block),
@@ -194,19 +198,6 @@ sub read_blocks {
     return \@blocks;
 }
 
-# read blank-line delimited block
-sub read_block {
-    my ($fh) = @_;
-    my @line_array = ();
-    while (my $line = <$fh>) {
-        if ($line =~ /^[^\d].* \[sar -/) { $line = '' }
-        if ($line =~ /^Average/) { next }
-        if ($line =~ /^\s*$/) { last }
-        chomp ($line);
-        push @line_array, $line;
-    }
-    return \@line_array;
-}
 
 # split line to time and columns. adjust time to 24 hr.
 sub split_line {
