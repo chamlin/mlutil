@@ -3,30 +3,6 @@ declare namespace event = 'http://esereno.com/logging/event';
 
 import module namespace sdmp = 'http://marklogic.com/support/dump' at '/sdmp.xqy';
 
-declare function local:get-table-value-map ($name-ref-, $q) {
-    let $value-map := 
-        let $_map := map:map ()
-        let $_ :=
-          for $tuple in cts:value-tuples ($refs, (), $q)
-          let $dt := $tuple[1]
-          let $name := $tuple[2]
-          let $value := $tuple[3]
-          return
-            if (map:contains ($_map, $name)) then
-                
-                if (map:contains ($_map, $name)) then
-                    map:put ($_map, $name, (map:get ($_map, $name), $subtype))
-                else
-                    map:put ($_map, $name, $subtype)
-
-
-
-                map:put ($_map, $name, (map:get ($_map, $name), $subtype))
-            else
-                map:put ($_map, $name, $subtype)
-        return $_map
-}
-
 let $collections := cts:collections()
 let $codepoint := ('collation=http://marklogic.com/collation/codepoint')
 let $collection-set := xdmp:get-request-field ('coll', ($collections, 'NONE')[1])
@@ -53,12 +29,52 @@ return
         <body>
         <hr/>
             <h1>SAR (collection = {$collection-set}, name = {$name})</h1>
-            <h2>nodes: {$nodes}</h2>
         <hr/>{
+            (: let $value-map := local:get-table-value-map ($dt-ref, $node-ref, $value-ref, $sar-coll-name-q) :)
             <table border='1'>{
-            <tr>{$nodes ! <th>{.}</th>}</tr>
-(:
+            <caption>$count values</caption>,
+            <tr>{('datetime', $nodes) ! <th>{.}</th>}</tr>,
             for $ts in cts:values ($dt-ref, (), ('ascending'), $sar-coll-name-q)
+            let $ts-q := cts:and-query (($sar-coll-name-q, cts:element-range-query (xs:QName ('event:timestamp'), '=', $ts)))
+            let $node-value-map :=
+                let $_map := map:map ()
+                let $_ :=
+                    for $tuple in cts:value-tuples (($node-ref, $value-ref), (), $ts-q)
+                    let $vals := json:array-values ($tuple)
+                    let $node := $vals[1]
+                    let $value := $vals[2]
+                    let $frequency := cts:frequency ($tuple)
+                    return
+                        if (map:contains ($_map, $node)) then 
+                            let $current := map:get ($_map, $node)
+                            return (
+                                map:put ($current, 'total', fn:sum ((map:get ($current, 'total'), ($value * $frequency)))),
+                                map:put ($current, 'count', fn:sum ((map:get ($current, 'count'), 1))),
+                                map:put ($current, 'values', ((map:get ($current, 'values'), $value)))
+                            )
+                        else
+                            let $new := map:new ((
+                                map:entry ('total', ($value * $frequency)),
+                                map:entry ('count', 1),
+                                map:entry ('values', $value)
+                            ))
+                            return map:put ($_map, $node, $new)
+                return $_map
+            return
+                <tr>{
+                    <td>{$ts}</td>,
+                    for $node in $nodes
+                    let $value-map := map:get ($node-value-map, $node)
+                    return
+                        if (fn:exists ($value-map)) then
+                            let $values := map:get ($value-map, 'values')
+                            let $min := fn:min ($values)
+                            let $max := fn:max ($values)
+                            return <td>{$min} -> {$max}</td>
+                        else
+                            <td/>
+                }</tr>
+(:
             for $node in cts:values ($node-ref, (), ('ascending'), $sar-coll-name-q)
             let $node-values-at-time-q := cts:and-query ((
                 $sar-coll-name-q,
