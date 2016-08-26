@@ -68,9 +68,14 @@ return
                     return
                         if (fn:exists ($value-map)) then
                             let $values := map:get ($value-map, 'values')
-                            let $min := fn:min ($values)
-                            let $max := fn:max ($values)
-                            return <td>{$min} -> {$max}</td>
+                            let $count := map:get ($value-map, 'count')
+                            return
+                                if ($count > 1) then
+                                    let $min := fn:min ($values)
+                                    let $max := fn:max ($values)
+                                    return <td>{$min} -> {$max}</td>
+                                else
+                                    <td>{$values}</td>
                         else
                             <td/>
                 }</tr>
