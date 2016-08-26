@@ -170,7 +170,8 @@ declare function sdmp:get-package-dbconfig ($dbname) as element(dbpkg:package-da
 declare function sdmp:get-package-dbconfig ($dbname, $dbs) as element(dbpkg:package-database) {
     let $config := $dbs/db:databases/db:database[db:database-name eq $dbname]
     let $skips := ('db:database-name', 'db:database-id', 'db:security-database', 'db:schema-database', 'db:triggers-database', 'db:forests') ! xs:QName (.)
-    return
+    let $empties := ('db:database-backups') ! xs:QName (.)
+   return
   <package-database xmlns="http://marklogic.com/manage/package/databases">
 	<metadata>
 		<package-version>2.0</package-version>
@@ -182,9 +183,15 @@ declare function sdmp:get-package-dbconfig ($dbname, $dbs) as element(dbpkg:pack
 	</metadata>
     <config>
       <name>{$dbname}</name>
-      <package-database-properties>
-        { $config/*[fn:not (fn:node-name() = $skips)] }
-      </package-database-properties>
+      <package-database-properties>{
+        for $config-item in $config/*
+        where fn:not (fn:node-name($config-item) = $skips)
+        return
+            if (fn:node-name($config-item) = $empties) then
+                element { fn:node-name ($config-item) } {}
+            else
+                $config-item
+      }</package-database-properties>
      <links>
 			<forests-list>
 				<forest-name>{$dbname}-forest</forest-name>
