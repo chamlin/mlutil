@@ -28,7 +28,7 @@ dump_static_threads ($stats);
 dump_tree ($stats);
 dump_flame_info ($stats);
 
-# print STDERR Dumper $stats;
+print STDERR Dumper $stats;
 
 
 ########### subs
@@ -182,21 +182,49 @@ sub dump_static_threads {
 # dump out info to run and create flamegraph
 sub dump_flame_info {
     my ($tree) = @_;
-    open my $fh, ">", "flame-info.out";
-    open my $reverse_fh, ">", "flame-reversed-info.out";
 
+    # build info on ignored sigs
+    my %ignored = ();
     foreach my $sig (keys $stats->{sig_count_totals}) {
         my $noflame = grep { $_ eq 'noflame' } @{$stats->{sig_classes}{$sig}{tags}};
-        if ($noflame)  { next }
+        if ($noflame)  { $ignored{$sig} = 1 }
+        else           { $ignored{$sig} = 0 }
+    }
+
+    # overall flamegraphs
+    open my $fh, ">", "flame-info.out";
+    open my $reverse_fh, ">", "flame-reversed-info.out";
+    foreach my $sig (keys $stats->{sig_count_totals}) {
+        if ($ignored{$sig}) { next }
+        # sum
         my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
         my $call_stack = sum_line (reverse @{$stats->{sig_lines}{$sig}});
         print $fh "$call_stack $sig_count\n";
         my $reverse_call_stack = $stats->{sig_sums}{$sig};
         print $reverse_fh "$reverse_call_stack $sig_count\n";
     }
-
     close $reverse_fh;
     close $fh;
+
+    # per node
+    for (my $index = 0; $index <= $#{$stats->{filenames}}; $index++) {
+        my $filename = $stats->{filenames}[$index];
+        open $fh, ">", "$filename-flame-info.out";
+        open $reverse_fh, ">", "$filename-flame-reversed-info.out";
+        foreach my $sig (keys $stats->{sig_count_totals}) {
+            if ($ignored{$sig}) { next }
+            # sum
+            my $sig_count = sum (@{$stats->{sig_counts}[$index]{$sig}}, 0);
+            if ($sig_count == 0) { next }
+            my $call_stack = sum_line (reverse @{$stats->{sig_lines}{$sig}});
+            print $fh "$call_stack $sig_count\n";
+            my $reverse_call_stack = $stats->{sig_sums}{$sig};
+            print $reverse_fh "$reverse_call_stack $sig_count\n";
+        }
+        close $reverse_fh;
+        close $fh;
+    }
+
 }
 
 # create lines summary for flamegraph output and matcher checking
@@ -344,7 +372,8 @@ sub file_thread {
     $thread->{text} = join ("\n", @{$thread->{lines}});
     my $sig_text = join ('', map { my $t = $_; $t =~ s/#\d+\s+\S+ in //; $t } @{$thread->{lines}});
     $thread->{sig} = md5_hex ($sig_text);
-    # increment sig count for this dump
+    # increment sig count for this dump.  sig_counts index matches filenames index.
+    # $stats->{sig_counts}[$file_index]{$sig}[$dump]     (dump is the sample in the file).
     ${$stats->{sig_counts}[$#{$stats->{filenames}}]{$thread->{sig}}}[$stats->{dump}]++;
     # increment sig count for this thread
     my $thread_uid = md5_hex ("$thread->{filename}}{$thread->{tid}}");
