@@ -20,6 +20,8 @@ close ($dir);
 foreach my $file (@files) { file_timestamp ($file) }
 @files = sort { $a->{timestamp} <=> $b->{timestamp} } @files;
 
+dump_sorted_files (@files);
+
 # initialize the current_files to start, and preceding files
 my %current_files = ();
 my %bases = ();
@@ -93,9 +95,11 @@ sub current_files {
 sub dump_groups {
     my ($groups) = @_;
     my %files;
+    my $group_number = 0;
     foreach my $group (@$groups) {
+        $group_number++;
         print "\n\n\n";
-        print "=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* start: ", timestamp_to_datetime ($group->{start_timestamp}), "\n";
+        print "=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* change group number $group_number.  start: ", timestamp_to_datetime ($group->{start_timestamp}), "\n";
         foreach my $file_diff (@{$group->{files}}) {
             $files{$file_diff->{base}} = $file_diff->{filename};
             if ($file_diff->{preceding}) {
@@ -109,6 +113,9 @@ sub dump_groups {
             if ($file_diff->{preceding}) {
                 print "\n\n";
                 system "diff $file_diff->{preceding} $file_diff->{filename}";
+                print "\n";
+            } else {
+                print "first seen at this timestamp\n";
             }
         }
         print "\n\n";
@@ -146,6 +153,18 @@ sub dump_current {
         print "    $current->{$base}\n";
     }
 };
+
+sub dump_sorted_files {
+    my (@files) = @_;
+    print "\n=============== sorted files=========\n\n";
+    foreach my $file (@files) {
+        printf '%-17s', $file->{filename};
+        print ' @ ', timestamp_to_datetime ($file->{timestamp}), "\n";
+    }
+    print "\n=====================================\n\n";
+};
+
+
 
 
 sub file_timestamp {
