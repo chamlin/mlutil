@@ -185,7 +185,7 @@ sub dump_flame_info {
 
     # build info on ignored sigs
     my %ignored = ();
-    foreach my $sig (keys $stats->{sig_count_totals}) {
+    foreach my $sig (keys %{$stats->{sig_count_totals}}) {
         my $noflame = grep { $_ eq 'noflame' } @{$stats->{sig_classes}{$sig}{tags}};
         if ($noflame)  { $ignored{$sig} = 1 }
         else           { $ignored{$sig} = 0 }
@@ -194,7 +194,7 @@ sub dump_flame_info {
     # overall flamegraphs
     open my $fh, ">", "flame-info.out";
     open my $reverse_fh, ">", "flame-reversed-info.out";
-    foreach my $sig (keys $stats->{sig_count_totals}) {
+    foreach my $sig (keys %{$stats->{sig_count_totals}}) {
         if ($ignored{$sig}) { next }
         # sum
         my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
@@ -211,7 +211,7 @@ sub dump_flame_info {
         my $filename = $stats->{filenames}[$index];
         open $fh, ">", "$filename-flame-info.out";
         open $reverse_fh, ">", "$filename-flame-reversed-info.out";
-        foreach my $sig (keys $stats->{sig_count_totals}) {
+        foreach my $sig (keys %{$stats->{sig_count_totals}}) {
             if ($ignored{$sig}) { next }
             # sum
             my $sig_count = sum (@{$stats->{sig_counts}[$index]{$sig}}, 0);
@@ -285,11 +285,11 @@ sub ready_stats {
     }
     # sig_sums
     my $stack_tree = {};
-    foreach my $sig (keys $stats->{sig_lines}) {
+    foreach my $sig (keys %{$stats->{sig_lines}}) {
         $stats->{sig_sums}{$sig} = sum_line (@{$stats->{sig_lines}{$sig}});
     }
     # assign sig_classes/sig_matches
-    foreach my $sig (keys $stats->{sig_sums}) {
+    foreach my $sig (keys %{$stats->{sig_sums}}) {
         # check for matches
         foreach my $matcher (@{$stats->{classes}{matchers}}) {
             my $matcher_sum_line = $matcher->{sum_line};
@@ -314,7 +314,7 @@ sub ready_stats {
     }
     # stack_tree
     $stats->{stack_tree} = $stack_tree;
-    foreach my $sig (keys $stats->{sig_count_totals}) {
+    foreach my $sig (keys %{$stats->{sig_count_totals}}) {
         my $level = 0;
         my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
         my $ref = $stack_tree;
