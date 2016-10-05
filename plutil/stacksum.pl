@@ -25,6 +25,7 @@ ready_stats ($stats);
 dump_stats ($stats);
 dump_sample_times ($stats);
 dump_static_threads ($stats);
+dump_busy_threads ($stats);
 dump_tree ($stats);
 dump_flame_info ($stats);
 
@@ -76,7 +77,7 @@ sub read_stack_info_files {
         close $fh;
         # flush last one
         if ($matcher) {
-            if (! (scalar @{$matcher->{lines}} && $matcher->{name} && $matcher->{tags})) {
+            if (! (scalar @{$matcher->{lines}} && $matcher->{name} && $matcher->{tags}))  {
                 print STDERR "Matcher missing name or tags or lines (discarded): ", Dumper ($matcher), "\n";
             } else {
                 push @{$retval->{matchers}}, $matcher;
@@ -89,7 +90,7 @@ sub read_stack_info_files {
     return $retval;
 }
 
-# show aggregate stats
+# show times of samples
 sub dump_sample_times {
     my ($stats) = @_;
     open my $fh, ">", "stack-sample-times.out";
@@ -130,50 +131,56 @@ sub dump_stats {
     close $fh;
 }
 
+sub dump_busy_threads {
+    my ($stats) = @_;
+    open my $fh, ">", "busy-threads.out";
+
+    print $fh "================= busy non-static threads ==================\n\n";
+
+    foreach my $thread_uid (keys %{$stats->{thread_sigs_busy}}) {
+        print $fh "====================================== $thread_uid\n";
+        my $thread_info = $stats->{thread_uids}{$thread_uid};
+        print $fh "filename: $thread_info->{filename}.\n";
+        print $fh "thread id: $thread_info->{id}.\n";
+
+    }
+
+    close $fh;
+}
+
 # show threads that don't change
 sub dump_static_threads {
     my ($stats) = @_;
     open my $fh, ">", "static-threads.out";
 
-    my $static_threads = {};
-
-    my $thread_sigs = $stats->{thread_sigs};
-    foreach my $thread_sig (keys %{$thread_sigs}) {
-        my $thread_info = $stats->{thread_uids}{$thread_sig};
-        my $number_of_samples = $#{$stats->{file_dates}{$thread_info->{filename}}} + 1;
-        my $is_static = 1;
-        my $stack_hash = $thread_sigs->{$thread_sig}[0];
-        # all samples have to exist and match first
-        foreach my $index (1 .. $number_of_samples-1) {
-            unless ($thread_sigs->{$thread_sig}[$index] && $stack_hash eq $thread_sigs->{$thread_sig}[$index]) {
-                $is_static = 0;
-                last;
-            }
-        }
-        if ($is_static) {
-            push @{$static_threads->{$stack_hash}}, {
-                filename => $thread_info->{filename},
-                id => $thread_info->{id}
-            };
-        }
-    }
+    my $static_threads = $stats->{static_threads};
 
     print $fh "================= static threads ==================\n\n";
 
     foreach my $stack_hash (sort { $#{$static_threads->{$a}} <=> $#{$static_threads->{$b}} } keys %{$static_threads}) {
-        my $stack_occurs = $static_threads->{$stack_hash};
+        my $stack_occurrences = $static_threads->{$stack_hash};
         print $fh "=======================================\n\n";
         print $fh join ("\n", @{$stats->{sig_lines}{$stack_hash}}), "\n";
         print $fh "\n\n";
-        my $threads = scalar @{$stack_occurs};
+        my $threads = scalar @{$stack_occurrences};
         if ($threads > $MAX_STATIC_THREADS_LIST) {
             print $fh "Over $MAX_STATIC_THREADS_LIST occurrences of sig $stack_hash ($threads total).\n";
         } else {
-            foreach my $occurrence (@{$stack_occurs}) {
+            foreach my $occurrence (@{$stack_occurrences}) {
                 print $fh "file $occurrence->{filename}, thread id $occurrence->{id}, sig $stack_hash.\n";
             }
         }
         print $fh "\n\n";
+    }
+
+    print $fh "================= busy non-static threads ==================\n\n";
+
+    foreach my $thread_uid (keys %{$stats->{thread_sigs_busy}}) {
+        print $fh "====================================== $thread_uid\n";
+        my $thread_info = $stats->{thread_uids}{$thread_uid};
+        print $fh "filename: $thread_info->{filename}.\n";
+        print $fh "thread id: $thread_info->{id}.\n";
+
     }
 
     close $fh;
@@ -242,6 +249,7 @@ sub sum_line {
     return join (';', @calls);
 }
 
+# tree printer
 sub dump_tree {
     my ($stats) = @_;
     open my $fh, ">", "stack-tree.out";
@@ -264,6 +272,7 @@ sub _dump_tree {
 sub ready_stats {
     my ($stats) = @_;
     my $dumps = $stats->{dump};
+
     # uggh, fill in sparse counts, then create sort key (highest, to lowest, each slice)
     foreach my $file_counts (@{$stats->{sig_counts}}) {
         foreach my $sid (keys %{$stats->{sig_lines}}) {
@@ -275,6 +284,7 @@ sub ready_stats {
             $stats->{sig_sort_keys}{$sid} = join ('-', map { sprintf("%08d", $_) } @$sig_counts);
         }
     }
+
     # sort key for aggregates
     foreach my $sid (keys %{$stats->{sig_count_totals}}) {
         #$stats->{sig_sort_keys}{$sid} = join ('-', map { sprintf("%08d", $_) } @{$stats->{sig_count_totals}{$sid}});
@@ -283,11 +293,13 @@ sub ready_stats {
              *
              10 ** sum ( map { $_ > 0 } @{$stats->{sig_count_totals}{$sid}} )
     }
+
     # sig_sums
     my $stack_tree = {};
     foreach my $sig (keys %{$stats->{sig_lines}}) {
         $stats->{sig_sums}{$sig} = sum_line (@{$stats->{sig_lines}{$sig}});
     }
+
     # assign sig_classes/sig_matches
     foreach my $sig (keys %{$stats->{sig_sums}}) {
         # check for matches
@@ -308,9 +320,56 @@ sub ready_stats {
                 $stats->{sig_classes}{$sig}{tags}{$tag} = 1;
             }
         }
+        # save idle sigs for busy report
+        if ($stats->{sig_classes}{$sig}{tags}{idle}) {
+            $stats->{sigs_idle}{$sig}++
+        }
         # get back keys for unique list
         my @unique_tags = keys %{$stats->{sig_classes}{$sig}{tags}};
         $stats->{sig_classes}{$sig}{tags} = \@unique_tags;
+    }
+
+    # static threads
+    my $thread_sigs = $stats->{thread_sigs};
+    foreach my $thread_sig (keys %{$thread_sigs}) {
+        my $thread_info = $stats->{thread_uids}{$thread_sig};
+        my $number_of_samples = $#{$stats->{file_dates}{$thread_info->{filename}}} + 1;
+        my $is_static = 1;
+        my $stack_hash = $thread_sigs->{$thread_sig}[0];
+        # all samples have to exist and match first
+        foreach my $index (1 .. $number_of_samples-1) {
+            unless ($thread_sigs->{$thread_sig}[$index] && $stack_hash eq $thread_sigs->{$thread_sig}[$index]) {
+                $is_static = 0;
+                last;
+            }
+        }
+        if ($is_static) {
+            push @{$stats->{static_threads}{$stack_hash}}, $thread_info;
+            $stats->{static_thread_uids}{$thread_sig} = 1;
+        }
+    }
+
+    # threads always busy (not idle)
+    foreach my $thread_uid (keys %{$stats->{thread_sigs}}) {
+        my $thread_info = $stats->{thread_uids}{$thread_uid};
+        my $thread_samples = scalar @{$stats->{thread_sigs}{$thread_uid}};
+        my $file_samples = scalar @{$stats->{file_dates}{$thread_info->{filename}}};
+        # can't be busy always if it doesn't exist always
+        if ($thread_samples < $file_samples) {  next }
+        if ($stats->{static_thread_uids}{$thread_uid}) { next }
+        $stats->{thread_sigs_busy}{$thread_uid} = 1;
+        foreach my $thread_sig (@{$stats->{thread_sigs}{$thread_uid}}) {
+            if ($stats->{sigs_idle}{$thread_sig}) { delete $stats->{thread_sigs_busy}{$thread_uid}; last }
+        }
+        if (exists $stats->{thread_sigs_busy}{$thread_uid}) {
+            print STDERR "======================================\n";
+            print STDERR $thread_uid . ' ' . Dumper $thread_info;
+            print STDERR Dumper $stats->{thread_sigs}{$thread_uid};
+            print STDERR Dumper $stats->{file_dates}{$thread_info->{filename}};
+            #scalar @{$stats->{thread_sigs}{$stats->{thread_uids}{$thread_uid}{filename}}}
+            #. '/' .
+            # scalar @{$stats->{file_dates}{$thread_info->{filename}}};
+        }
     }
     # stack_tree
     $stats->{stack_tree} = $stack_tree;
@@ -332,6 +391,7 @@ sub ready_stats {
     }
 }
 
+# input file
 sub do_file {
     my ($stats, $filename) = @_;
     push @{$stats->{filenames}}, $filename;
@@ -367,6 +427,7 @@ sub do_file {
     return $stats;
 }
 
+# add a thread dump to the stats
 sub file_thread {
     my ($stats, $thread) = @_;
     $thread->{text} = join ("\n", @{$thread->{lines}});
