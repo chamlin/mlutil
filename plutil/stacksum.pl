@@ -22,6 +22,8 @@ for my $filename (@filenames) {  do_file ($stats, $filename) }
 
 ready_stats ($stats);
 
+# print STDERR Dumper $stats;
+
 dump_stats ($stats);
 dump_sample_times ($stats);
 dump_static_threads ($stats);
@@ -29,7 +31,6 @@ dump_busy_threads ($stats);
 dump_tree ($stats);
 dump_flame_info ($stats);
 
-print STDERR Dumper $stats;
 
 
 ########### subs
@@ -135,14 +136,19 @@ sub dump_busy_threads {
     my ($stats) = @_;
     open my $fh, ">", "busy-threads.out";
 
-    print $fh "================= busy non-static threads ==================\n\n";
+    print $fh "================= ", scalar (keys %{$stats->{thread_sigs_busy}}), " busy non-static threads ==================\n\n";
 
     foreach my $thread_uid (keys %{$stats->{thread_sigs_busy}}) {
         print $fh "====================================== $thread_uid\n";
         my $thread_info = $stats->{thread_uids}{$thread_uid};
         print $fh "filename: $thread_info->{filename}.\n";
-        print $fh "thread id: $thread_info->{id}.\n";
-
+        print $fh "thread id: $thread_info->{id}.\n\n";
+        foreach my $stack_sig (@{$stats->{thread_sigs}{$thread_uid}}) {
+            foreach my $stack_line (@{$stats->{sig_lines}{$stack_sig}}) {
+                print $fh "$stack_line\n";
+            }
+            print $fh "\n";
+        }
     }
 
     close $fh;
@@ -171,16 +177,6 @@ sub dump_static_threads {
             }
         }
         print $fh "\n\n";
-    }
-
-    print $fh "================= busy non-static threads ==================\n\n";
-
-    foreach my $thread_uid (keys %{$stats->{thread_sigs_busy}}) {
-        print $fh "====================================== $thread_uid\n";
-        my $thread_info = $stats->{thread_uids}{$thread_uid};
-        print $fh "filename: $thread_info->{filename}.\n";
-        print $fh "thread id: $thread_info->{id}.\n";
-
     }
 
     close $fh;
@@ -360,15 +356,6 @@ sub ready_stats {
         $stats->{thread_sigs_busy}{$thread_uid} = 1;
         foreach my $thread_sig (@{$stats->{thread_sigs}{$thread_uid}}) {
             if ($stats->{sigs_idle}{$thread_sig}) { delete $stats->{thread_sigs_busy}{$thread_uid}; last }
-        }
-        if (exists $stats->{thread_sigs_busy}{$thread_uid}) {
-            print STDERR "======================================\n";
-            print STDERR $thread_uid . ' ' . Dumper $thread_info;
-            print STDERR Dumper $stats->{thread_sigs}{$thread_uid};
-            print STDERR Dumper $stats->{file_dates}{$thread_info->{filename}};
-            #scalar @{$stats->{thread_sigs}{$stats->{thread_uids}{$thread_uid}{filename}}}
-            #. '/' .
-            # scalar @{$stats->{file_dates}{$thread_info->{filename}}};
         }
     }
     # stack_tree
