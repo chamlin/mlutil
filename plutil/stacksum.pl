@@ -117,7 +117,9 @@ sub dump_stats {
         foreach my $file_index (0 .. $#{$stats->{filenames}}) {
             # avoid many rows of zeros
             if (sum (@{$stats->{sig_counts}[$file_index]{$sid}}) > 0) {
-                print $fh "@{$stats->{sig_counts}[$file_index]{$sid}}  - $stats->{filenames}[$file_index]\n";
+                my $counts = join ('', (map { sprintf '%4s', $_ } @{$stats->{sig_counts}[$file_index]{$sid}}));
+                #print $fh "@{$stats->{sig_counts}[$file_index]{$sid}}  - $stats->{filenames}[$file_index]\n";
+                print $fh "$counts - $stats->{filenames}[$file_index]\n";
             }
         }
         print $fh "@{$stats->{sig_count_totals}{$sid}}  - totals\n";
