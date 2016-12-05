@@ -12,6 +12,10 @@ summarize pstacks.  Give stacks with counts in each pstack in the movie.  Ordere
 
     for out in flame*-info.out ; do ~/git/FlameGraph/flamegraph.pl --width 1600 $out > $out.svg ; done
 
+then
+
+    open -a Google\ Chrome.app *.svg
+
 ## stacksum2.pl
 
 summarize pstacks.  Give stacks with counts in each pstack in the movie.  Ordered roughly by number of nodes, then by threads.  Works with multiple files.
