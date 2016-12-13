@@ -86,13 +86,18 @@ sub prep_blocks {
         my $col1 = $block->{columns}[0];
         # get date
         if ($col1 eq 'Linux') { 
+
+#print STDERR 'date: ', Dumper ($block), "\n";
             # set date
             foreach my $col (@{$block->{columns}}) {
+#print STDERR 'col: ', $col, "\n";
                 # date
                 if      ($col =~ /\d\d\d\d-\d\d-\d\d/) {
                     $date = $col;
-                } elsif ($col =~ /(\d\d)\/(\d\d)\/(\d\d\d\d)/) {
+                } elsif ($col =~ /(\d\d)\/(\d\d)\/(\d{2,4})/) {
+#print STDERR 'col match: ', $col, "\n";
                     my ($month, $day, $year) = ($1, $2, $3);
+                    if ($year < 2000) { $year += 2000 }
                     if ($month > 12) {
                         # switch
                         ($month, $day) = ($2, $1);
@@ -106,6 +111,7 @@ sub prep_blocks {
             # really nothing else to do for this block
             next;
         }
+#print STDERR 'date: ', $date, "\n";
         # set date (mostly debug)
         $block->{date} = $date;
         $block->{node} = $node;
@@ -139,9 +145,9 @@ sub prep_blocks {
                         create_element ('filename', $block->{filename}),
                         create_element ('linenumber', $line_number),
                         create_element ('node', $node),
-                        create_element ('type', 'sar'),
-                        create_element ('name', $col),
-                        (defined $sub_event ? create_element ('subtype', $sub_event) : ''),
+                        create_element ('source', 'sar'),
+                        create_element ('measure', $col),
+                        (defined $sub_event ? create_element ('submeasure', $sub_event) : ''),
                         create_element ('value', $parsed->{values}[$i]),
                         '</event>',
                     ));
@@ -171,15 +177,22 @@ sub read_blocks {
     my ($filename, $fh) = @_;
     my @blocks = ();
     my $line_number = 0;
+    my $holdover_line = undef;
     while (1) {
         my $block = [];
-        while (my $line = <$fh>) {
-            $line_number++;
-            if ($line =~ /^[^\d].* \[sar -/) { $line = '' }
-            if ($line =~ /^Average/) { next }
-            if ($line =~ /^\s*$/) { last }
-            chomp ($line);
-            push @$block, $line;
+        if ($holdover_line) { 
+            push @$block, $holdover_line;
+            $holdover_line = undef;
+        } else {
+            while (my $line = <$fh>) {
+                $line_number++;
+                if ($line =~ /^[^\d].* \[sar -/) { $line = '' }
+                if ($line =~ /^Average/) { next }
+                if ($line =~ /^\s*$/) { last }
+                if ($line =~ /^Linux/) { $holdover_line = $line; last }
+                chomp ($line);
+                push @$block, $line;
+            }
         }
         unless (scalar @$block) {
             if (eof ($fh)) { last } else { next }
