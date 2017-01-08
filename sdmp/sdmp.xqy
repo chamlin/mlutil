@@ -18,15 +18,30 @@ declare namespace db = 'http://marklogic.com/xdmp/database';
 declare namespace hs = 'http://marklogic.com/xdmp/status/host';
 declare namespace fs = 'http://marklogic.com/xdmp/status/forest';
 
-declare variable $sdmp:collection as xs:string := 'NONE-GIVEN';
+declare variable $sdmp:collection-default as xs:string := 'NONE-GIVEN';
+declare variable $sdmp:collection as xs:string? := ();
 declare variable $sdmp:collection-query as cts:query := cts:or-query (());
 
-declare function sdmp:set-collection ($bar) {
-    xdmp:set ($sdmp:collection, $bar),
-    xdmp:set ($sdmp:collection-query, cts:collection-query ($sdmp:collection)),
-    if (xdmp:estimate (cts:search (/, $sdmp:collection-query)) > 0) then () 
-    else
-        fn:error(xs:QName("SDMP-BADCOLL"), 'collection '||$sdmp:collection||' has no documents')
+(: game-day bucket go boom, maybe; otherwise return (possibly empty) collection selection :)
+declare function sdmp:check-collection-set ($throw as xs:boolean) {
+    let $collection := (xdmp:get-request-field ('collection'), xdmp:get-session-field ('collection'))[1]
+    let $check := 
+        if ($throw and (fn:empty ($collection))) then
+            fn:error(xs:QName("ERROR"), "No dump collection set via sdmp:set-collection()")
+        else ()
+    let $_set := sdmp:set-collection ($collection)
+    return $collection
+};
+
+declare function sdmp:set-collection ($collection as xs:string?) {
+    if (fn:not ($collection)) then () else (
+        xdmp:set-session-field ('collection', $collection),
+        xdmp:set ($sdmp:collection, $collection),
+        xdmp:set ($sdmp:collection-query, cts:collection-query ($collection)),
+        if (xdmp:estimate (cts:search (/, $collection-query)) > 0) then () 
+        else
+            fn:error(xs:QName("SDMP-BADCOLL"), 'collection "'||$collection||'" has no documents')
+    )
 };
 
 declare function sdmp:get-dump-host () {
@@ -37,14 +52,6 @@ declare function sdmp:get-dump-host ($collection) {
     cts:search (/smeta:Support-Request, $sdmp:collection-query)/smeta:Report-Host/fn:string()
 };
 
-declare function sdmp:get-mangled-dump-host () {
-    sdmp:get-mangled-dump-host ($sdmp:collection)
-};
-
-declare function sdmp:get-mangled-dump-host ($collection) {
-    fn:replace (sdmp:get-dump-host ($collection), '\.', '_')
-};
-
 (: returns doc node :)
 declare function sdmp:get-config-file ($config-file) {
     sdmp:get-config-file ($sdmp:collection, $config-file)
@@ -52,17 +59,7 @@ declare function sdmp:get-config-file ($config-file) {
 
 (: returns doc (not root node) :)
 declare function sdmp:get-config-file ($collection, $config-file) {
-    let $mangled_host := sdmp:get-mangled-dump-host ($collection)
-    let $uri := cts:uri-match ('*/'||$mangled_host||'/*/'||$config-file, (), $sdmp:collection-query)
-    return  fn:doc ($uri)
-};
-
-declare function sdmp:main-host-uri-pattern ($filename) {
-    sdmp:main-host-uri-pattern ($sdmp:collection, $filename)
-};
-
-declare function sdmp:main-host-uri-pattern ($collection, $filename) {
-    '*/'||sdmp:get-mangled-dump-host ($collection)||'/*/Forest-Status.xml'
+    fn:doc (cts:uri-match ('*/Configuration/'||$config-file, ('limit=1'), $sdmp:collection-query))
 };
 
 declare function sdmp:get-host-status ($host-id) {
@@ -80,18 +77,24 @@ declare function sdmp:get-host-iowaits () {
 };
 
 (: returns doc node :)
-declare function sdmp:get-forest-status ($fid) {
-    sdmp:get-forest-status ($sdmp:collection, $fid)
+declare function sdmp:forest-status-from-id ($fid as xs:long) {
+    sdmp:forest-status ($sdmp:collection, cts:element-value-query (xs:QName ('fs:forest-id'), $fid, 'exact'))
 };
 
-declare function sdmp:get-forest-status ($collection, $fid) {
+
+
+(: returns doc node :)
+declare function sdmp:forest-status-from-name ($fname as xs:string) {
+    sdmp:forest-status ($sdmp:collection, cts:element-value-query (xs:QName ('fs:forest-name'), $fname, 'exact'))
+};
+
+declare function sdmp:forest-status ($collection as xs:string, $q as cts:query) {
     let $query := cts:and-query ((
         cts:collection-query ($collection),
-        cts:element-value-query (xs:QName ('f:forest-id'), fn:string ($fid))
+        cts:element-query (xs:QName ('fs:forest-status'), cts:true-query ()),
+        $q
     ))
-    let $uri-pattern := sdmp:main-host-uri-pattern($collection, 'Forest-Status.xml')
-    let $uri := cts:uri-match ($uri-pattern, (), $query)
-    return fn:doc ($uri)
+    return cts:search (fn:doc(), $query)[1]
 };
 
 (: doesn't get replicas/unattached :)
@@ -116,6 +119,7 @@ declare function sdmp:db-forest-stand-sizes () {
     sdmp:db-forest-stand-sizes ($sdmp:collection)
 };
 
+
 declare function sdmp:db-forest-stand-sizes ($collection) {
     let $dbs := sdmp:get-config-file ($collection, 'databases.xml')
     let $assigns := sdmp:get-config-file ($collection, 'assignments.xml')   
@@ -124,7 +128,7 @@ declare function sdmp:db-forest-stand-sizes ($collection) {
         let $db-name := $db/db:database-name/fn:data()
         for $fid in $db/db:forests/db:forest-id/fn:data()
         let $forest-name := $assigns/a:assignments/a:assignment[a:forest-id eq $fid]/a:forest-name/fn:data()
-        let $fstat := sdmp:get-forest-status ($collection, $fid)
+        let $fstat := sdmp:forest-status ($collection, $fid)
         for $stand in $fstat/f:forest-status/f:stands/f:stand
         let $path := $stand/f:path/fn:data()
         let $size := $stand/f:disk-size/fn:data()
