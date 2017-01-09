@@ -97,10 +97,35 @@ declare function sdmp:forest-status-info () {
     return $results
 };
 
+declare function sdmp:host-mount-spaces ($hosts as map:map, $fs-info as map:map) {
+    let $results :=
+        let $map :=  map:map ()
+        let $_init :=
+            for $fname in map:keys ($fs-info)
+            let $fstat := map:get ($fs-info, $fname)
+            let $fdir := map:get ($fstat, 'data-dir')
+            let $fhost := map:get ($fstat, 'host-id')
+            let $space := map:get ($fstat, 'device-space')
+            return
+                let $dir-map :=
+                    if (fn:exists (map:get ($map, $fdir))) then 
+                        map:get ($map, $fdir)
+                    else
+                        let $new-map := map:map ()
+                        return (
+                            map:put ($map, $fdir, $new-map),
+                            $new-map
+                        )
+                return map:put ($dir-map, fn:string ($space), (map:get ($dir-map, fn:string ($space)), $fhost))
+        return $map
+    return $results
+};
+
 let $_set := sdmp:set-collection ('jpmc-space')
+let $db-info := sdmp:db-info()
 let $fs-info := sdmp:forest-status-info()
 let $hosts := sdmp:hosts-ids ()
-return <x>{$hosts}</x>
+return <x>{sdmp:host-mount-spaces($hosts, $fs-info)}</x>
 
 
 (:
