@@ -33,6 +33,8 @@ declare function sdmp:db-info () {
     
 };
 
+
+
 (:
 
 {
@@ -46,7 +48,8 @@ declare function sdmp:db-info () {
             "10052118607267114042": {
                 "active": 150657,
                 "name": "0000015d",
-                "deleted": 0
+                "deleted": 0,
+                "disk-size": 234
             },
             "13532792807398717798": {
                 "active": 693850,
@@ -95,7 +98,9 @@ declare function sdmp:forest-status-info () {
 };
 
 let $_set := sdmp:set-collection ('jpmc-space')
-return sdmp:forest-status-info()
+let $fs-info := sdmp:forest-status-info()
+let $hosts := sdmp:hosts-ids ()
+return <x>{$hosts}</x>
 
 
 (:

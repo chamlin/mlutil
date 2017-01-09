@@ -62,6 +62,19 @@ declare function sdmp:get-config-file ($collection, $config-file) {
     fn:doc (cts:uri-match ('*/Configuration/'||$config-file, ('limit=1'), $sdmp:collection-query))
 };
 
+(: keyed by name and by id (as string) :)
+declare function sdmp:hosts-ids () {
+    map:new ((
+        for $host in sdmp:get-config-file ('hosts.xml')/ho:hosts/ho:host
+        let $name := $host/ho:host-name/fn:data()
+        let $id := $host/ho:host-id/fn:data()
+        return (
+            map:entry ($name, $id),
+            map:entry (fn:string ($id), $name)
+        )
+    ))
+};
+
 declare function sdmp:get-host-status ($host-id) {
     cts:search (/hs:host-status[ho:host-id eq $host-id], $sdmp:collection-query)
 };
