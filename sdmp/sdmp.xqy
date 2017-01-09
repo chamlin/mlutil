@@ -89,6 +89,56 @@ declare function sdmp:get-host-iowaits () {
     )
 };
 
+(: do some join of counts/status and calculations and put it all together :)
+declare function sdmp:forest-status-info () {
+    <forest-status-info xmlns='http://marklogic.com/xdmp/status/forest'>{
+
+        for $fstatus in cts:search (/fs:forest-status, $sdmp:collection-query)
+        let $fname := $fstatus/fs:forest-name/fn:string()
+        let $q := cts:and-query (($sdmp:collection-query, cts:element-value-query (xs:QName ('fs:forest-name'), $fname, 'exact')))
+        let $fcounts := cts:search (/fs:forest-counts, $q)
+        let $forest-disk-space := fn:sum ($fstatus/fs:stands/fs:stand/fs:disk-size/fn:data())
+        return <forest>{
+            <forest-name>{$fstatus/fs:forest-name/fn:data()}</forest-name>,
+            <forest-id>{$fstatus/fs:forest-id/fn:data()}</forest-id>,
+            <device-space>{$fstatus/fs:device-space/fn:data()}</device-space>,
+            <data-dir>{$fstatus/fs:data-dir/fn:data()}</data-dir>,
+            <host-id>{$fstatus/fs:host-id/fn:data()}</host-id>,
+            <disk-space>{$forest-disk-space}</disk-space>
+            ,
+            let $stands-info := <stands>{
+                for $stand in $fcounts/fs:stands-counts/fs:stand-counts
+                let $stand-id := $stand/fs:stand-id/fn:data()
+                let $stand-status := $fstatus/fs:stands/fs:stand[stand-id eq $stand-id]/fs:disk-size/fn:data()
+                let $stand-name := fn:replace ($stand/fs:path, '^.+/', '')
+                return
+                    <stand>
+                        <name>{$stand-name}</name>,
+                        <disk-size>{$stand-name}</disk-size>
+                        <active-fragment-count>{$stand/fs:active-fragment-count}</active-fragment-count>
+                        <deleted-fragment-count>{$stand/fs:deleted-fragment-count}</deleted-fragment-count>
+                    </stand>
+             }</stands>
+             let $active-fragment-count := fn:sum ($stands-info/stand/active-fragment-count)
+             let $deleted-fragment-count := fn:sum ($stands-info/stand/deleted-fragment-count)
+             let $total-fragment-count :=  $active-fragment-count + $deleted-fragment-count
+             let $fmax := 
+                if ($total-fragment-count eq 0) then
+                    0
+                else
+                    xs:integer ( ((xs:double ($active-fragment-count) div $total-fragment-count) * $forest-disk-space) * 1.5)
+             return (
+                     $stands-info,
+                     <active-fragment-count>{$active-fragment-count}</active-fragment-count>,
+                     <deleted-fragment-count>{$deleted-fragment-count}</deleted-fragment-count>,
+                     <total-fragment-count>{$total-fragment-count}</total-fragment-count>,
+                     <fmax>{$fmax}</fmax>,
+                     <one-point-five>{$fmax * 1.5}</one-point-five>
+             )
+         }</forest>
+    }</forest-status-info>
+};
+
 (: returns doc node :)
 declare function sdmp:forest-status-from-id ($fid as xs:long) {
     sdmp:forest-status ($sdmp:collection, cts:element-value-query (xs:QName ('fs:forest-id'), $fid, 'exact'))
