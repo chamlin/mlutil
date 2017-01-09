@@ -97,6 +97,12 @@ declare function sdmp:forest-status ($collection as xs:string, $q as cts:query) 
     return cts:search (fn:doc(), $query)[1]
 };
 
+declare function sdmp:db-config ($name as xs:string) {
+    let $dbc := sdmp:get-config-file ('databases.xml')/db:databases/db:database[db:database-name eq $name]  
+    return
+        $dbc
+};
+
 (: doesn't get replicas/unattached :)
 declare function sdmp:db-forest-sizes () {
     sdmp:db-forest-sizes ($sdmp:collection)
