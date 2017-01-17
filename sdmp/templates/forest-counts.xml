@@ -1,0 +1,60 @@
+<template xmlns="http://marklogic.com/xdmp/tde">
+    <path-namespaces>
+        <path-namespace>
+            <prefix>fs</prefix>
+            <namespace-uri>http://marklogic.com/xdmp/status/forest</namespace-uri>
+        </path-namespace>
+    </path-namespaces>
+    <context>/fs:forest-counts</context>
+    <rows>
+        <row>
+            <schema-name>sdmp</schema-name>
+            <view-name>forest_counts</view-name>
+            <columns>
+                <column>
+                    <name>forest_name</name>
+                    <scalar-type>string</scalar-type>
+                    <val>fs:forest-name</val>
+                    <invalid-values>ignore</invalid-values>
+                </column>
+                <column>
+                    <name>current_time</name>
+                    <scalar-type>dateTime</scalar-type>
+                    <val>fs:current-time</val>
+                    <invalid-values>ignore</invalid-values>
+                </column>
+                <column>
+                    <name>id</name>
+                    <scalar-type>unsignedLong</scalar-type>
+                    <val>fs:forest-id</val>
+                    <invalid-values>ignore</invalid-values>
+                </column>
+                <column>
+                    <name>deleted_fragment_count</name>
+                    <scalar-type>integer</scalar-type>
+                    <val>fn:sum (fs:stands-counts/fs:stand-counts/fs:deleted-fragment-count)</val>
+                    <invalid-values>ignore</invalid-values>
+                </column>
+                <column>
+                    <name>active_fragment_count</name>
+                    <scalar-type>integer</scalar-type>
+                    <val>fn:sum (fs:stands-counts/fs:stand-counts/fs:active-fragment-count)</val>
+                    <invalid-values>ignore</invalid-values>
+                </column>
+                <column>
+                    <name>document_count</name>
+                    <scalar-type>integer</scalar-type>
+                    <val>fn:sum (fs:document-count)</val>
+                    <invalid-values>ignore</invalid-values>
+                </column>
+                <column>
+                    <name>directory_count</name>
+                    <scalar-type>integer</scalar-type>
+                    <val>fn:sum (fs:directory-count)</val>
+                    <invalid-values>ignore</invalid-values>
+                </column>
+            </columns>
+        </row>
+    </rows>
+</template>
+
