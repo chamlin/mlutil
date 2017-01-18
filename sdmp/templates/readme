@@ -1,0 +1,12 @@
+Insert in documents:
+
+~/mlcp/bin/mlcp.sh import -host hostname.marklogic.com -port 8000 -username admin -password admin -input_file_path . -mode local -output_collections templates -database Documents
+
+then use the qconsole xqy to validate templates in Documents
+(note, may need to clear Schemas, or get an inconsistent error).
+
+then use the qconsole xqy to insert all the templates into schemas
+
+Insert docs
+
+~/mlcp/bin/mlcp.sh import -host hostname.marklogic.com  -port 8000 -username admin -password admin -input_file_path ./Support-Dump/ -mode local -output_collections rebalance -database Documents
