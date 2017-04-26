@@ -1,5 +1,0 @@
-Global symbol "$stack_tree" requires explicit package name at ./stacksum2.pl line 118.
-Global symbol "$stack_tree" requires explicit package name at ./stacksum2.pl line 119.
-syntax error at ./stacksum2.pl line 123, near ")
-        print"
-Execution of ./stacksum2.pl aborted due to compilation errors.
