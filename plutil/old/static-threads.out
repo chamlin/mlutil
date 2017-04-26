@@ -1,0 +1,192 @@
+================= static threads ==================
+
+=======================================
+
+#0  0x00007fd9d5daa00d in nanosleep () from /lib64/libpthread.so.0
+#1  0x0000000003da3a51 in svc::Thread::sleep(unsigned int) ()
+#2  0x00000000033fce3f in xdmp::Server::backgroundLoop() ()
+#3  0x000000000340d22c in xdmp::run() ()
+#4  0x00000000034124bb in xdmp::daemon(int, char const**) ()
+#5  0x00007fd9d536ed5d in __libc_start_main () from /lib64/libc.so.6
+#6  0x0000000000b8d929 in _start ()
+
+file examples/pstack.log, thread id 0x7fd9d815d740, sig e69a76a842ab632cabf0750a60d1d34a.
+
+
+=======================================
+
+#0  0x00007fd9d5daa00d in nanosleep () from /lib64/libpthread.so.0
+#1  0x0000000003da3a51 in svc::Thread::sleep(unsigned int) ()
+#2  0x00000000021f4d0a in xdmp::ClusterManager::clusterThread() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+
+file examples/pstack.log, thread id 0x7fd9bafff700, sig ad37e919555a960e9f7262d49c0a892a.
+
+
+=======================================
+
+#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x0000000003da3d44 in svc::StarterThread::run() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+
+file examples/pstack.log, thread id 0x7fd9ce7ff700, sig b1d8404564061f1c4a0d6ea6c41fcac7.
+
+
+=======================================
+
+#0  0x00007fd9d5da9b2d in accept () from /lib64/libpthread.so.0
+#1  0x0000000003d98531 in svc::Socket::accept(sockaddr_in&) ()
+#2  0x0000000003a837db in xdmp::XDQPServerThread::run() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+
+file examples/pstack.log, thread id 0x7fd9bfbff700, sig 1a1f966034a14c4b18495e6fdd7349c5.
+file examples/pstack.log, thread id 0x7fd0e9030700, sig 1a1f966034a14c4b18495e6fdd7349c5.
+
+
+=======================================
+
+#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x0000000002a6b7d4 in xdmp::ForeignForestJournalConsumer::futureFinisherThread() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+
+file examples/pstack.log, thread id 0x7fd9c7fff700, sig 718e1f6f993e0157a587b046e3179067.
+file examples/pstack.log, thread id 0x7fd9cafff700, sig 718e1f6f993e0157a587b046e3179067.
+file examples/pstack.log, thread id 0x7fd9cac00700, sig 718e1f6f993e0157a587b046e3179067.
+file examples/pstack.log, thread id 0x7fd9cc400700, sig 718e1f6f993e0157a587b046e3179067.
+
+
+=======================================
+
+#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x0000000002a6e827 in xdmp::JournalConsumer::consumerThread() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+
+file examples/pstack.log, thread id 0x7fd9cc7ff700, sig 8f7a45f90c21368d364718ac5473ec83.
+file examples/pstack.log, thread id 0x7fd9c67ff700, sig 8f7a45f90c21368d364718ac5473ec83.
+file examples/pstack.log, thread id 0x7fd1fa6e2700, sig 8f7a45f90c21368d364718ac5473ec83.
+file examples/pstack.log, thread id 0x7fd9c77ff700, sig 8f7a45f90c21368d364718ac5473ec83.
+
+
+=======================================
+
+#0  0x00007fd9d5da9b2d in accept () from /lib64/libpthread.so.0
+#1  0x0000000003d98531 in svc::Socket::accept(sockaddr_in&) ()
+#2  0x0000000002015548 in xdmp::AppServerThread::run() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+
+file examples/pstack.log, thread id 0x7fd966fe2700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd94ec36700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd9ce06a700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd952c44700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd9bd42d700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd9bec53700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd9d7fe0700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd9d807e700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd9d7fa2700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd9bc822700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd9864d5700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd9d7fc1700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+file examples/pstack.log, thread id 0x7fd9d815b700, sig b2e1ed46fedd9a81941f6f6e9d3442f3.
+
+
+=======================================
+
+#0  0x00007fd9d5da9b2d in accept () from /lib64/libpthread.so.0
+#1  0x0000000003d98531 in svc::Socket::accept(sockaddr_in&) ()
+#2  0x0000000003a01344 in xdmp::XDBCServerThread::run() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+
+file examples/pstack.log, thread id 0x7fd905d36700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd94881e700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd91ac59700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd8ef912700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd884fdc700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd764b27700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd76143d700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd92381f700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd8fd4a0700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd8ed8b9700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd77613d700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd8b044b700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd84d469700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd8898ad700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd7f9b94700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd935b42700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd7d616a700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd88d34b700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+file examples/pstack.log, thread id 0x7fd951425700, sig 9b27da58dd74cfe71955270ddd0afa6a.
+
+
+=======================================
+
+#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x0000000003da6c64 in svc::PooledThread::run() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+
+Over 20 occurrences of sig aa62d87f1d0742b1e028048d06b75891 (123 total).
+
+
+=======================================
+
+#0  0x00007fd9d542f113 in poll () from /lib64/libc.so.6
+#1  0x0000000003d94238 in svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+#2  0x0000000003d959ed in svc::Socket::recv(char*, char*, unsigned int) ()
+#3  0x0000000003d95df0 in svc::Sockbuf::underflow() ()
+#4  0x0000000003d8eeb9 in svc::Sockbuf::xsgetn(char*, long) ()
+#5  0x0000000003a22c47 in xdmp::XDQPServerConnection::recv(xdmp::XDQPServerListener const&, std::vector<unsigned int, std::allocator<unsigned int> >&) ()
+#6  0x0000000003a76fc4 in xdmp::XDQPServerConnection::run() ()
+#7  0x0000000003a7a7fd in xdmp::XDQPServerConnectionThread::run() ()
+#8  0x0000000003da4073 in svc::Thread::top() ()
+#9  0x0000000003da4bd9 in runThread ()
+#10 0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#11 0x00007fd9d543893d in clone () from /lib64/libc.so.6
+
+Over 20 occurrences of sig cf127085f3d42a589b376f0140b64580 (218 total).
+
+
+=======================================
+
+#0  0x00007fd9d542f113 in poll () from /lib64/libc.so.6
+#1  0x0000000003d94238 in svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+#2  0x0000000003d959ed in svc::Socket::recv(char*, char*, unsigned int) ()
+#3  0x0000000003d95df0 in svc::Sockbuf::underflow() ()
+#4  0x0000000003d8eeb9 in svc::Sockbuf::xsgetn(char*, long) ()
+#5  0x00000000017743d5 in xdmp::XDQPClientConnection::recv(xdmp::XDQPClientListener const&, std::vector<unsigned int, std::allocator<unsigned int> >&, long*) ()
+#6  0x0000000001785607 in xdmp::XDQPClientConnection::run(xdmp::XDQPClientListener&) ()
+#7  0x0000000001787a24 in xdmp::XDQPClientConnectionThread::run() ()
+#8  0x0000000003da4073 in svc::Thread::top() ()
+#9  0x0000000003da4bd9 in runThread ()
+#10 0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#11 0x00007fd9d543893d in clone () from /lib64/libc.so.6
+
+Over 20 occurrences of sig 4d7f3a4d1e2ab35be22c2e58b8029a11 (219 total).
+
+

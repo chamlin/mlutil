@@ -1,0 +1,548 @@
+$VAR1 = {
+          'sig_counts' => [
+                            {
+                              '7c172042ad508e33001c07791e75dac9' => [
+                                                                      0,
+                                                                      0,
+                                                                      1,
+                                                                      0
+                                                                    ],
+                              '1066fd36bd97c3f28832bb1586205ec9' => [
+                                                                      13,
+                                                                      13,
+                                                                      13,
+                                                                      13
+                                                                    ],
+                              'f6dade59a2dedc78c872d09bc86f85f4' => [
+                                                                      1,
+                                                                      0,
+                                                                      0,
+                                                                      0
+                                                                    ],
+                              '25ba24743ad9e1df72321a705ff2d435' => [
+                                                                      1,
+                                                                      1,
+                                                                      1,
+                                                                      1
+                                                                    ],
+                              '4f0894dffea06bc0949f3a9710cf9944' => [
+                                                                      0,
+                                                                      1,
+                                                                      1,
+                                                                      2
+                                                                    ],
+                              '66690ff3b5b5887d5ca7831a0e42fe6a' => [
+                                                                      138,
+                                                                      157,
+                                                                      196,
+                                                                      214
+                                                                    ],
+                              '8183d8e8a68f85bbc6fa3103bd41a94f' => [
+                                                                      1,
+                                                                      0,
+                                                                      0,
+                                                                      0
+                                                                    ],
+                              '330070a8d700a5a418549991977b0f00' => [
+                                                                      1,
+                                                                      1,
+                                                                      1,
+                                                                      1
+                                                                    ],
+                              '2708dfc41a8b4211c0fa8a1728ea8985' => [
+                                                                      1,
+                                                                      0,
+                                                                      0,
+                                                                      0
+                                                                    ],
+                              '6b16b64483d87f51d979d7b71d1cbb35' => [
+                                                                      0,
+                                                                      0,
+                                                                      0,
+                                                                      1
+                                                                    ],
+                              '1c168910dc5ca1a1ea3e10eeace833aa' => [
+                                                                      4,
+                                                                      8,
+                                                                      7,
+                                                                      4
+                                                                    ],
+                              '4e5bfd964eda4fe01bff99fbb858b44e' => [
+                                                                      4,
+                                                                      0,
+                                                                      0,
+                                                                      0
+                                                                    ],
+                              '7eb1957228f7a5fd40f62e0d62883392' => [
+                                                                      1,
+                                                                      0,
+                                                                      0,
+                                                                      0
+                                                                    ],
+                              '547319eddb6867a314fa0a448d236897' => [
+                                                                      1,
+                                                                      0,
+                                                                      0,
+                                                                      0
+                                                                    ],
+                              '5da5396c65ef1d98c7751aa5e0f7b324' => [
+                                                                      1,
+                                                                      1,
+                                                                      0,
+                                                                      1
+                                                                    ],
+                              '83d84f2a33bd86a1590cefab9d46ed8e' => [
+                                                                      19,
+                                                                      19,
+                                                                      19,
+                                                                      19
+                                                                    ],
+                              '8813611bf42cb28567c3a8ac97685a3c' => [
+                                                                      4,
+                                                                      4,
+                                                                      4,
+                                                                      4
+                                                                    ],
+                              'ecbd6763a32e030c4a062375e0f44d1f' => [
+                                                                      0,
+                                                                      0,
+                                                                      1,
+                                                                      0
+                                                                    ],
+                              '42f8ecd9ad64812a399ebf94724b1a60' => [
+                                                                      2,
+                                                                      2,
+                                                                      2,
+                                                                      2
+                                                                    ],
+                              '01b180ad2014c85f0fe9ea0edf8b8eb8' => [
+                                                                      4,
+                                                                      4,
+                                                                      4,
+                                                                      4
+                                                                    ],
+                              '27a296761b3772b387218f21d8e8415a' => [
+                                                                      219,
+                                                                      219,
+                                                                      218,
+                                                                      219
+                                                                    ],
+                              'f716ad4c97033f94caf191a54fad7cb7' => [
+                                                                      219,
+                                                                      219,
+                                                                      219,
+                                                                      219
+                                                                    ]
+                            }
+                          ],
+          'dump' => 3,
+          'filenames' => [
+                           'examples/pstack.log'
+                         ],
+          'sig_text' => {
+                          '8183d8e8a68f85bbc6fa3103bd41a94f' => '#0  0x00000000024de0f8 in xdmp::HBInfo::encode(svc::Encoder&) const ()
+#1  0x0000000003a4945e in xdmp::XDQPServerSession::replicateRecoveryOp(xdmp::XDQPServerRequest&) ()
+#2  0x0000000003a801bd in xdmp::XDQPServerSession::run() ()
+#3  0x0000000003da6df5 in svc::PooledThread::run() ()
+#4  0x0000000003da4073 in svc::Thread::top() ()
+#5  0x0000000003da4bd9 in runThread ()
+#6  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#7  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '330070a8d700a5a418549991977b0f00' => '#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x0000000003da3d44 in svc::StarterThread::run() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '6b16b64483d87f51d979d7b71d1cbb35' => '#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x0000000001772b04 in xdmp::XDQPClientListener::finish(xdmp::XDQPClientResponse&, svc::Decoder&) ()
+#3  0x00000000017b59dc in xdmp::XDQPClientLocatorIteratorFuture::_finish() ()
+#4  0x000000000236f7e0 in xdmp::DatabaseEvalFuture::_finish() ()
+#5  0x0000000001af1900 in xdmp::PathExpr::_eval(xdmp::DynamicEnv&, std::vector<svc::Handle<xdmp::StepExpr>, std::allocator<svc::Handle<xdmp::StepExpr> > > const&, svc::Handle<xdmp::Value>&) const ()
+#6  0x0000000001af2e6d in xdmp::PathExpr::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+#7  0x0000000001a5871c in xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+#8  0x0000000001a5896c in xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+#9  0x0000000001a31ca2 in xdmp::FLWORExpr::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+#10 0x0000000001a3ff96 in xdmp::FunctionCall::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+#11 0x0000000001a19f64 in xdmp::Expr::evalCompletely(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+#12 0x00000000038a2048 in xdmp::TryCatchExpr::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+#13 0x0000000001a3b7b9 in xdmp::FunctionTailCall::evalTail(xdmp::DynamicEnv&, xdmp::ValueAccumulator&, svc::Handle<xdmp::TailCall>&) ()
+#14 0x0000000001a3ff4f in xdmp::FunctionCall::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+#15 0x0000000001a5871c in xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+#16 0x0000000001a5896c in xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+#17 0x0000000001a5896c in xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+#18 0x0000000001a5896c in xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+#19 0x0000000001a314f5 in xdmp::FLWORExpr::evalTail(xdmp::DynamicEnv&, xdmp::ValueAccumulator&, svc::Handle<xdmp::TailCall>&) const ()
+#20 0x0000000001a3b7b9 in xdmp::FunctionTailCall::evalTail(xdmp::DynamicEnv&, xdmp::ValueAccumulator&, svc::Handle<xdmp::TailCall>&) ()
+#21 0x0000000001a36c21 in xdmp::StatementExpr::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+#22 0x0000000003ae8674 in xdmp::MainModule::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+#23 0x0000000003b1eac0 in xdmp::Statement::_eval(xdmp::DynamicEnv&, svc::Handle<xdmp::StaticEnv> const&, svc::Handle<xdmp::XSLTEnv> const&, xdmp::SPARQLEnv*, xdmp::Bool&) const ()
+#24 0x0000000003b1f685 in xdmp::Statement::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::StaticEnv> const&, svc::Handle<xdmp::XSLTEnv> const&, xdmp::SPARQLEnv*, char const*, bool) const ()
+#25 0x0000000003b2049a in xdmp::Program::eval(xdmp::LocationInfo const&, xdmp::DynamicEnv&, svc::Handle<xdmp::StaticEnv> const&, svc::Handle<xdmp::XSLTEnv> const&, char const*, bool, bool, std::vector<svc::Handle<xdmp::Result>, std::allocator<svc::Handle<xdmp::Result> > >*) const ()
+#26 0x00000000039f752f in xdmp::XDBCRequestTask::handleInvoke(xdmp::DynamicEnv&, svc::Handle<xdmp::StaticEnv> const&, svc::Handle<xdmp::XDBCRequest>&, bool, xdmp::Dialect) ()
+#27 0x00000000039ff6ee in xdmp::XDBCRequestTask::handleRequest(svc::Handle<xdmp::XDBCRequest>&) ()
+#28 0x0000000003a0773b in xdmp::XDBCRequestTask::run() ()
+#29 0x0000000003da6df5 in svc::PooledThread::run() ()
+#30 0x0000000003da4073 in svc::Thread::top() ()
+#31 0x0000000003da4bd9 in runThread ()
+#32 0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#33 0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '2708dfc41a8b4211c0fa8a1728ea8985' => '#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x0000000001772b04 in xdmp::XDQPClientListener::finish(xdmp::XDQPClientResponse&, svc::Decoder&) ()
+#3  0x000000000184c1d6 in xdmp::XDQPClientFuture<xdmp::HBInfo, xdmp::EncodeTraits<xdmp::HBInfo>, xdmp::Future<xdmp::HBInfo> >::_finish() ()
+#4  0x0000000003004f29 in xdmp::RecoveryManager::finishReplicaFutures(xdmp::Forest&, xdmp::RecoveryOp&, std::vector<svc::Handle<xdmp::Future<xdmp::HBInfo> >, std::allocator<svc::Handle<xdmp::Future<xdmp::HBInfo> > > >&, std::vector<unsigned long, std::allocator<unsigned long> >&) ()
+#5  0x000000000301a738 in xdmp::RecoveryManager::_record(xdmp::Forest&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, bool, svc::PrioritySemtexSection&) ()
+#6  0x000000000301da21 in xdmp::RecoveryManager::record(xdmp::Forest&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, bool) ()
+#7  0x000000000250a12f in xdmp::Forest::fastQueryTimestampJournalTaskRun(unsigned long) ()
+#8  0x0000000003da6df5 in svc::PooledThread::run() ()
+#9  0x0000000003da4073 in svc::Thread::top() ()
+#10 0x0000000003da4bd9 in runThread ()
+#11 0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#12 0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '1c168910dc5ca1a1ea3e10eeace833aa' => '#0  0x00007fd9d542f113 in poll () from /lib64/libc.so.6
+#1  0x0000000003d94238 in svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+#2  0x0000000003d9439f in svc::Socket::wait(unsigned int) const ()
+#3  0x00000000039e7f0d in xdmp::XDBCKeepAliveTask::run() ()
+#4  0x0000000003da6df5 in svc::PooledThread::run() ()
+#5  0x0000000003da4073 in svc::Thread::top() ()
+#6  0x0000000003da4bd9 in runThread ()
+#7  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#8  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '4e5bfd964eda4fe01bff99fbb858b44e' => '#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x0000000001772b04 in xdmp::XDQPClientListener::finish(xdmp::XDQPClientResponse&, svc::Decoder&) ()
+#3  0x000000000177cfec in xdmp::XDQPClientVoidFuture::_finish() ()
+#4  0x0000000002a6a163 in xdmp::ForeignForestJournalConsumer::fastQueryTimestampTask() const ()
+#5  0x0000000003da6df5 in svc::PooledThread::run() ()
+#6  0x0000000003da4073 in svc::Thread::top() ()
+#7  0x0000000003da4bd9 in runThread ()
+#8  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#9  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '25ba24743ad9e1df72321a705ff2d435' => '#0  0x00007fd9d5daa00d in nanosleep () from /lib64/libpthread.so.0
+#1  0x0000000003da3a51 in svc::Thread::sleep(unsigned int) ()
+#2  0x00000000021f4d0a in xdmp::ClusterManager::clusterThread() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          'f6dade59a2dedc78c872d09bc86f85f4' => '#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x00000000036cf5d4 in xdmp::ConcurrentStandResultVectorFuture::_finish() ()
+#3  0x00000000036e6f05 in xdmp::DocumentOrderLocatorIterator::DocumentOrderLocatorIterator(std::vector<svc::Handle<xdmp::StandResultVectorFuture>, std::allocator<svc::Handle<xdmp::StandResultVectorFuture> > > const&) ()
+#4  0x00000000036e7391 in xdmp::DocumentOrderLocatorIteratorFuture::_finish() ()
+#5  0x000000000236f7e0 in xdmp::DatabaseEvalFuture::_finish() ()
+#6  0x0000000003a318dd in xdmp::XDQPServerSession::eval(xdmp::XDQPServerRequest&) ()
+#7  0x0000000003a7ed48 in xdmp::XDQPServerSession::run() ()
+#8  0x0000000003da6df5 in svc::PooledThread::run() ()
+#9  0x0000000003da4073 in svc::Thread::top() ()
+#10 0x0000000003da4bd9 in runThread ()
+#11 0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#12 0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '7c172042ad508e33001c07791e75dac9' => '#0  0x0000000003684997 in xdmp::Stand::getDeletedFragmentCount(unsigned long) const ()
+#1  0x0000000002b97841 in xdmp::PerfMeterTask::forestStatus(xdmp::LDHEnv&, std::vector<svc::Handle<xdmp::MeterDocument>, std::allocator<svc::Handle<xdmp::MeterDocument> > >&) ()
+#2  0x0000000002ba4a6e in xdmp::PerfMeterTask::run() ()
+#3  0x0000000003da6df5 in svc::PooledThread::run() ()
+#4  0x0000000003da4073 in svc::Thread::top() ()
+#5  0x0000000003da4bd9 in runThread ()
+#6  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#7  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '1066fd36bd97c3f28832bb1586205ec9' => '#0  0x00007fd9d5da9b2d in accept () from /lib64/libpthread.so.0
+#1  0x0000000003d98531 in svc::Socket::accept(sockaddr_in&) ()
+#2  0x0000000002015548 in xdmp::AppServerThread::run() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '4f0894dffea06bc0949f3a9710cf9944' => '#0  0x00007fd9d5daa00d in nanosleep () from /lib64/libpthread.so.0
+#1  0x0000000003da3a51 in svc::Thread::sleep(unsigned int) ()
+#2  0x00000000033fce3f in xdmp::Server::backgroundLoop() ()
+#3  0x000000000340d22c in xdmp::run() ()
+#4  0x00000000034124bb in xdmp::daemon(int, char const**) ()
+#5  0x00007fd9d536ed5d in __libc_start_main () from /lib64/libc.so.6
+#6  0x0000000000b8d929 in _start ()
+',
+                          '66690ff3b5b5887d5ca7831a0e42fe6a' => '#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x0000000003da6c64 in svc::PooledThread::run() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '01b180ad2014c85f0fe9ea0edf8b8eb8' => '#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x0000000002a6b7d4 in xdmp::ForeignForestJournalConsumer::futureFinisherThread() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '42f8ecd9ad64812a399ebf94724b1a60' => '#0  0x00007fd9d5da9b2d in accept () from /lib64/libpthread.so.0
+#1  0x0000000003d98531 in svc::Socket::accept(sockaddr_in&) ()
+#2  0x0000000003a837db in xdmp::XDQPServerThread::run() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          'f716ad4c97033f94caf191a54fad7cb7' => '#0  0x00007fd9d542f113 in poll () from /lib64/libc.so.6
+#1  0x0000000003d94238 in svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+#2  0x0000000003d959ed in svc::Socket::recv(char*, char*, unsigned int) ()
+#3  0x0000000003d95df0 in svc::Sockbuf::underflow() ()
+#4  0x0000000003d8eeb9 in svc::Sockbuf::xsgetn(char*, long) ()
+#5  0x00000000017743d5 in xdmp::XDQPClientConnection::recv(xdmp::XDQPClientListener const&, std::vector<unsigned int, std::allocator<unsigned int> >&, long*) ()
+#6  0x0000000001785607 in xdmp::XDQPClientConnection::run(xdmp::XDQPClientListener&) ()
+#7  0x0000000001787a24 in xdmp::XDQPClientConnectionThread::run() ()
+#8  0x0000000003da4073 in svc::Thread::top() ()
+#9  0x0000000003da4bd9 in runThread ()
+#10 0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#11 0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '27a296761b3772b387218f21d8e8415a' => '#0  0x00007fd9d542f113 in poll () from /lib64/libc.so.6
+#1  0x0000000003d94238 in svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+#2  0x0000000003d959ed in svc::Socket::recv(char*, char*, unsigned int) ()
+#3  0x0000000003d95df0 in svc::Sockbuf::underflow() ()
+#4  0x0000000003d8eeb9 in svc::Sockbuf::xsgetn(char*, long) ()
+#5  0x0000000003a22c47 in xdmp::XDQPServerConnection::recv(xdmp::XDQPServerListener const&, std::vector<unsigned int, std::allocator<unsigned int> >&) ()
+#6  0x0000000003a76fc4 in xdmp::XDQPServerConnection::run() ()
+#7  0x0000000003a7a7fd in xdmp::XDQPServerConnectionThread::run() ()
+#8  0x0000000003da4073 in svc::Thread::top() ()
+#9  0x0000000003da4bd9 in runThread ()
+#10 0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#11 0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '7eb1957228f7a5fd40f62e0d62883392' => '#0  0x00007fd9d7d39392 in tcache_bin_flush_small () from /opt/MarkLogic/lib/libjemalloc.so.1
+#1  0x00007fd9d7d39657 in tcache_destroy () from /opt/MarkLogic/lib/libjemalloc.so.1
+#2  0x00007fd9d7d29805 in thread_tcache_flush_ctl () from /opt/MarkLogic/lib/libjemalloc.so.1
+#3  0x00007fd9d7d2a658 in ctl_byname () from /opt/MarkLogic/lib/libjemalloc.so.1
+#4  0x0000000003a7e50d in xdmp::XDQPServerSession::run() ()
+#5  0x0000000003da6df5 in svc::PooledThread::run() ()
+#6  0x0000000003da4073 in svc::Thread::top() ()
+#7  0x0000000003da4bd9 in runThread ()
+#8  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#9  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '8813611bf42cb28567c3a8ac97685a3c' => '#0  0x00007fd9d5da8a00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000003d86673 in svc::Semaphore::wait(bool) const ()
+#2  0x0000000002a6e827 in xdmp::JournalConsumer::consumerThread() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '83d84f2a33bd86a1590cefab9d46ed8e' => '#0  0x00007fd9d5da9b2d in accept () from /lib64/libpthread.so.0
+#1  0x0000000003d98531 in svc::Socket::accept(sockaddr_in&) ()
+#2  0x0000000003a01344 in xdmp::XDBCServerThread::run() ()
+#3  0x0000000003da4073 in svc::Thread::top() ()
+#4  0x0000000003da4bd9 in runThread ()
+#5  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '547319eddb6867a314fa0a448d236897' => '#0  0x00007fd9d542f113 in poll () from /lib64/libc.so.6
+#1  0x0000000003d94238 in svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+#2  0x0000000003d9439f in svc::Socket::wait(unsigned int) const ()
+#3  0x0000000001fff404 in xdmp::AppKeepAliveTask::run() ()
+#4  0x0000000003da6df5 in svc::PooledThread::run() ()
+#5  0x0000000003da4073 in svc::Thread::top() ()
+#6  0x0000000003da4bd9 in runThread ()
+#7  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#8  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          '5da5396c65ef1d98c7751aa5e0f7b324' => '#0  0x00007fd9d542f113 in poll () from /lib64/libc.so.6
+#1  0x0000000003d94238 in svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+#2  0x0000000003d9615b in svc::Socket::connect(sockaddr_in const&, unsigned int) ()
+#3  0x0000000001791d37 in xdmp::XDQPClientConnection::connect(xdmp::XDQPClientListener const&) ()
+#4  0x000000000179b693 in xdmp::XDQPClientConnection::_send(xdmp::XDQPClientListener const&, char const*, char const*) ()
+#5  0x000000000179c5cd in xdmp::XDQPClientConnection::send(xdmp::XDQPClientListener const&, char const*, char const*, bool) ()
+#6  0x000000000179cea4 in xdmp::XDQPClientListener::send(std::vector<unsigned int, std::allocator<unsigned int> >&, unsigned long, unsigned long, long, bool) ()
+#7  0x00000000017f1052 in xdmp::XDQPClient::heartbeat(unsigned long, unsigned long, xdmp::Heartbeat const&) ()
+#8  0x00000000017f11b1 in xdmp::XDQPHost::heartbeat(svc::Handle<xdmp::Heartbeat> const&) ()
+#9  0x00000000028b3da5 in xdmp::HeartbeatTask::run() ()
+#10 0x0000000003da6df5 in svc::PooledThread::run() ()
+#11 0x0000000003da4073 in svc::Thread::top() ()
+#12 0x0000000003da4bd9 in runThread ()
+#13 0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#14 0x00007fd9d543893d in clone () from /lib64/libc.so.6
+',
+                          'ecbd6763a32e030c4a062375e0f44d1f' => '#0  0x0000000003a163ee in xdmp::decodeTimestamps ()
+#1  0x0000000003a6b866 in xdmp::XDQPServerRequest::XDQPServerRequest(xdmp::XDQPServerListener const*, std::vector<unsigned int, std::allocator<unsigned int> >&) ()
+#2  0x0000000003a76fe9 in xdmp::XDQPServerConnection::run() ()
+#3  0x0000000003a7a7fd in xdmp::XDQPServerConnectionThread::run() ()
+#4  0x0000000003da4073 in svc::Thread::top() ()
+#5  0x0000000003da4bd9 in runThread ()
+#6  0x00007fd9d5da2aa1 in start_thread () from /lib64/libpthread.so.0
+#7  0x00007fd9d543893d in clone () from /lib64/libc.so.6
+'
+                        },
+          'sig_sort_keys' => {
+                               '1066fd36bd97c3f28832bb1586205ec9' => 520000,
+                               '7c172042ad508e33001c07791e75dac9' => 10,
+                               'f6dade59a2dedc78c872d09bc86f85f4' => 10,
+                               '25ba24743ad9e1df72321a705ff2d435' => 40000,
+                               '4f0894dffea06bc0949f3a9710cf9944' => 4000,
+                               '66690ff3b5b5887d5ca7831a0e42fe6a' => 7050000,
+                               '330070a8d700a5a418549991977b0f00' => 40000,
+                               '8183d8e8a68f85bbc6fa3103bd41a94f' => 10,
+                               '1c168910dc5ca1a1ea3e10eeace833aa' => 230000,
+                               '4e5bfd964eda4fe01bff99fbb858b44e' => 40,
+                               '2708dfc41a8b4211c0fa8a1728ea8985' => 10,
+                               '6b16b64483d87f51d979d7b71d1cbb35' => 10,
+                               '547319eddb6867a314fa0a448d236897' => 10,
+                               '5da5396c65ef1d98c7751aa5e0f7b324' => 3000,
+                               '8813611bf42cb28567c3a8ac97685a3c' => 160000,
+                               '83d84f2a33bd86a1590cefab9d46ed8e' => 760000,
+                               '7eb1957228f7a5fd40f62e0d62883392' => 10,
+                               'ecbd6763a32e030c4a062375e0f44d1f' => 10,
+                               '42f8ecd9ad64812a399ebf94724b1a60' => 80000,
+                               '01b180ad2014c85f0fe9ea0edf8b8eb8' => 160000,
+                               '27a296761b3772b387218f21d8e8415a' => 8750000,
+                               'f716ad4c97033f94caf191a54fad7cb7' => 8760000
+                             },
+          'sig_count_totals' => {
+                                  '4f0894dffea06bc0949f3a9710cf9944' => [
+                                                                          0,
+                                                                          1,
+                                                                          1,
+                                                                          2
+                                                                        ],
+                                  '66690ff3b5b5887d5ca7831a0e42fe6a' => [
+                                                                          138,
+                                                                          157,
+                                                                          196,
+                                                                          214
+                                                                        ],
+                                  '25ba24743ad9e1df72321a705ff2d435' => [
+                                                                          1,
+                                                                          1,
+                                                                          1,
+                                                                          1
+                                                                        ],
+                                  '1066fd36bd97c3f28832bb1586205ec9' => [
+                                                                          13,
+                                                                          13,
+                                                                          13,
+                                                                          13
+                                                                        ],
+                                  'f6dade59a2dedc78c872d09bc86f85f4' => [
+                                                                          1,
+                                                                          0,
+                                                                          0,
+                                                                          0
+                                                                        ],
+                                  '7c172042ad508e33001c07791e75dac9' => [
+                                                                          0,
+                                                                          0,
+                                                                          1,
+                                                                          0
+                                                                        ],
+                                  '6b16b64483d87f51d979d7b71d1cbb35' => [
+                                                                          0,
+                                                                          0,
+                                                                          0,
+                                                                          1
+                                                                        ],
+                                  '2708dfc41a8b4211c0fa8a1728ea8985' => [
+                                                                          1,
+                                                                          0,
+                                                                          0,
+                                                                          0
+                                                                        ],
+                                  '4e5bfd964eda4fe01bff99fbb858b44e' => [
+                                                                          4,
+                                                                          0,
+                                                                          0,
+                                                                          0
+                                                                        ],
+                                  '1c168910dc5ca1a1ea3e10eeace833aa' => [
+                                                                          4,
+                                                                          8,
+                                                                          7,
+                                                                          4
+                                                                        ],
+                                  '8183d8e8a68f85bbc6fa3103bd41a94f' => [
+                                                                          1,
+                                                                          0,
+                                                                          0,
+                                                                          0
+                                                                        ],
+                                  '330070a8d700a5a418549991977b0f00' => [
+                                                                          1,
+                                                                          1,
+                                                                          1,
+                                                                          1
+                                                                        ],
+                                  'ecbd6763a32e030c4a062375e0f44d1f' => [
+                                                                          0,
+                                                                          0,
+                                                                          1,
+                                                                          0
+                                                                        ],
+                                  '7eb1957228f7a5fd40f62e0d62883392' => [
+                                                                          1,
+                                                                          0,
+                                                                          0,
+                                                                          0
+                                                                        ],
+                                  '83d84f2a33bd86a1590cefab9d46ed8e' => [
+                                                                          19,
+                                                                          19,
+                                                                          19,
+                                                                          19
+                                                                        ],
+                                  '8813611bf42cb28567c3a8ac97685a3c' => [
+                                                                          4,
+                                                                          4,
+                                                                          4,
+                                                                          4
+                                                                        ],
+                                  '547319eddb6867a314fa0a448d236897' => [
+                                                                          1,
+                                                                          0,
+                                                                          0,
+                                                                          0
+                                                                        ],
+                                  '5da5396c65ef1d98c7751aa5e0f7b324' => [
+                                                                          1,
+                                                                          1,
+                                                                          0,
+                                                                          1
+                                                                        ],
+                                  'f716ad4c97033f94caf191a54fad7cb7' => [
+                                                                          219,
+                                                                          219,
+                                                                          219,
+                                                                          219
+                                                                        ],
+                                  '27a296761b3772b387218f21d8e8415a' => [
+                                                                          219,
+                                                                          219,
+                                                                          218,
+                                                                          219
+                                                                        ],
+                                  '01b180ad2014c85f0fe9ea0edf8b8eb8' => [
+                                                                          4,
+                                                                          4,
+                                                                          4,
+                                                                          4
+                                                                        ],
+                                  '42f8ecd9ad64812a399ebf94724b1a60' => [
+                                                                          2,
+                                                                          2,
+                                                                          2,
+                                                                          2
+                                                                        ]
+                                }
+        };

@@ -23,7 +23,7 @@ dump_stats ($stats);
 dump_static_threads ($stats);
 dump_tree ($stats);
 
-#print STDERR Dumper $stats;
+print STDERR Dumper $stats;
 
 
 ########### subs

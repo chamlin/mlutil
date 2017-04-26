@@ -1,0 +1,130 @@
+2670: clone () from /lib64/libc.so.6
+	2670: start_thread () from /lib64/libpthread.so.0
+		2670: runThread ()
+			2670: svc::Thread::top() ()
+				876: xdmp::XDQPClientConnectionThread::run() ()
+					876: xdmp::XDQPClientConnection::run(xdmp::XDQPClientListener&) ()
+						876: xdmp::XDQPClientConnection::recv(xdmp::XDQPClientListener const&, std::vector<unsigned int, std::allocator<unsigned int> >&, long*) ()
+							876: svc::Sockbuf::xsgetn(char*, long) ()
+								876: svc::Sockbuf::underflow() ()
+									876: svc::Socket::recv(char*, char*, unsigned int) ()
+										876: svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+											876: poll () from /lib64/libc.so.6
+				876: xdmp::XDQPServerConnectionThread::run() ()
+					876: xdmp::XDQPServerConnection::run() ()
+						875: xdmp::XDQPServerConnection::recv(xdmp::XDQPServerListener const&, std::vector<unsigned int, std::allocator<unsigned int> >&) ()
+							875: svc::Sockbuf::xsgetn(char*, long) ()
+								875: svc::Sockbuf::underflow() ()
+									875: svc::Socket::recv(char*, char*, unsigned int) ()
+										875: svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+											875: poll () from /lib64/libc.so.6
+						1: xdmp::XDQPServerRequest::XDQPServerRequest(xdmp::XDQPServerListener const*, std::vector<unsigned int, std::allocator<unsigned int> >&) ()
+							1: xdmp::decodeTimestamps ()
+				742: svc::PooledThread::run() ()
+					705: svc::Semaphore::wait(bool) const ()
+						705: sem_wait () from /lib64/libpthread.so.0
+					23: xdmp::XDBCKeepAliveTask::run() ()
+						23: svc::Socket::wait(unsigned int) const ()
+							23: svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+								23: poll () from /lib64/libc.so.6
+					4: xdmp::ForeignForestJournalConsumer::fastQueryTimestampTask() const ()
+						4: xdmp::XDQPClientVoidFuture::_finish() ()
+							4: xdmp::XDQPClientListener::finish(xdmp::XDQPClientResponse&, svc::Decoder&) ()
+								4: svc::Semaphore::wait(bool) const ()
+									4: sem_wait () from /lib64/libpthread.so.0
+					3: xdmp::XDQPServerSession::run() ()
+						1: ctl_byname () from /opt/MarkLogic/lib/libjemalloc.so.1
+							1: thread_tcache_flush_ctl () from /opt/MarkLogic/lib/libjemalloc.so.1
+								1: tcache_destroy () from /opt/MarkLogic/lib/libjemalloc.so.1
+									1: tcache_bin_flush_small () from /opt/MarkLogic/lib/libjemalloc.so.1
+						1: xdmp::XDQPServerSession::eval(xdmp::XDQPServerRequest&) ()
+							1: xdmp::DatabaseEvalFuture::_finish() ()
+								1: xdmp::DocumentOrderLocatorIteratorFuture::_finish() ()
+									1: xdmp::DocumentOrderLocatorIterator::DocumentOrderLocatorIterator(std::vector<svc::Handle<xdmp::StandResultVectorFuture>, std::allocator<svc::Handle<xdmp::StandResultVectorFuture> > > const&) ()
+										1: xdmp::ConcurrentStandResultVectorFuture::_finish() ()
+											1: svc::Semaphore::wait(bool) const ()
+												1: sem_wait () from /lib64/libpthread.so.0
+						1: xdmp::XDQPServerSession::replicateRecoveryOp(xdmp::XDQPServerRequest&) ()
+							1: xdmp::HBInfo::encode(svc::Encoder&) const ()
+					3: xdmp::HeartbeatTask::run() ()
+						3: xdmp::XDQPHost::heartbeat(svc::Handle<xdmp::Heartbeat> const&) ()
+							3: xdmp::XDQPClient::heartbeat(unsigned long, unsigned long, xdmp::Heartbeat const&) ()
+								3: xdmp::XDQPClientListener::send(std::vector<unsigned int, std::allocator<unsigned int> >&, unsigned long, unsigned long, long, bool) ()
+									3: xdmp::XDQPClientConnection::send(xdmp::XDQPClientListener const&, char const*, char const*, bool) ()
+										3: xdmp::XDQPClientConnection::_send(xdmp::XDQPClientListener const&, char const*, char const*) ()
+											3: xdmp::XDQPClientConnection::connect(xdmp::XDQPClientListener const&) ()
+												3: svc::Socket::connect(sockaddr_in const&, unsigned int) ()
+													3: svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+														3: poll () from /lib64/libc.so.6
+					1: xdmp::PerfMeterTask::run() ()
+						1: xdmp::PerfMeterTask::forestStatus(xdmp::LDHEnv&, std::vector<svc::Handle<xdmp::MeterDocument>, std::allocator<svc::Handle<xdmp::MeterDocument> > >&) ()
+							1: xdmp::Stand::getDeletedFragmentCount(unsigned long) const ()
+					1: xdmp::Forest::fastQueryTimestampJournalTaskRun(unsigned long) ()
+						1: xdmp::RecoveryManager::record(xdmp::Forest&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, bool) ()
+							1: xdmp::RecoveryManager::_record(xdmp::Forest&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, bool, svc::PrioritySemtexSection&) ()
+								1: xdmp::RecoveryManager::finishReplicaFutures(xdmp::Forest&, xdmp::RecoveryOp&, std::vector<svc::Handle<xdmp::Future<xdmp::HBInfo> >, std::allocator<svc::Handle<xdmp::Future<xdmp::HBInfo> > > >&, std::vector<unsigned long, std::allocator<unsigned long> >&) ()
+									1: xdmp::XDQPClientFuture<xdmp::HBInfo, xdmp::EncodeTraits<xdmp::HBInfo>, xdmp::Future<xdmp::HBInfo> >::_finish() ()
+										1: xdmp::XDQPClientListener::finish(xdmp::XDQPClientResponse&, svc::Decoder&) ()
+											1: svc::Semaphore::wait(bool) const ()
+												1: sem_wait () from /lib64/libpthread.so.0
+					1: xdmp::AppKeepAliveTask::run() ()
+						1: svc::Socket::wait(unsigned int) const ()
+							1: svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+								1: poll () from /lib64/libc.so.6
+					1: xdmp::XDBCRequestTask::run() ()
+						1: xdmp::XDBCRequestTask::handleRequest(svc::Handle<xdmp::XDBCRequest>&) ()
+							1: xdmp::XDBCRequestTask::handleInvoke(xdmp::DynamicEnv&, svc::Handle<xdmp::StaticEnv> const&, svc::Handle<xdmp::XDBCRequest>&, bool, xdmp::Dialect) ()
+								1: xdmp::Program::eval(xdmp::LocationInfo const&, xdmp::DynamicEnv&, svc::Handle<xdmp::StaticEnv> const&, svc::Handle<xdmp::XSLTEnv> const&, char const*, bool, bool, std::vector<svc::Handle<xdmp::Result>, std::allocator<svc::Handle<xdmp::Result> > >*) const ()
+									1: xdmp::Statement::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::StaticEnv> const&, svc::Handle<xdmp::XSLTEnv> const&, xdmp::SPARQLEnv*, char const*, bool) const ()
+										1: xdmp::Statement::_eval(xdmp::DynamicEnv&, svc::Handle<xdmp::StaticEnv> const&, svc::Handle<xdmp::XSLTEnv> const&, xdmp::SPARQLEnv*, xdmp::Bool&) const ()
+											1: xdmp::MainModule::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+												1: xdmp::StatementExpr::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+													1: xdmp::FunctionTailCall::evalTail(xdmp::DynamicEnv&, xdmp::ValueAccumulator&, svc::Handle<xdmp::TailCall>&) ()
+														1: xdmp::FLWORExpr::evalTail(xdmp::DynamicEnv&, xdmp::ValueAccumulator&, svc::Handle<xdmp::TailCall>&) const ()
+															1: xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+																1: xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+																	1: xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+																		1: xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+																			1: xdmp::FunctionCall::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+																				1: xdmp::FunctionTailCall::evalTail(xdmp::DynamicEnv&, xdmp::ValueAccumulator&, svc::Handle<xdmp::TailCall>&) ()
+																					1: xdmp::TryCatchExpr::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+																						1: xdmp::Expr::evalCompletely(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+																							1: xdmp::FunctionCall::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+																								1: xdmp::FLWORExpr::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+																									1: xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+																										1: xdmp::LetClause::flworEval(xdmp::FLWOREnv&, xdmp::FLWORExpr const&, unsigned long) const ()
+																											1: xdmp::PathExpr::eval(xdmp::DynamicEnv&, svc::Handle<xdmp::Value>&) const ()
+																												1: xdmp::PathExpr::_eval(xdmp::DynamicEnv&, std::vector<svc::Handle<xdmp::StepExpr>, std::allocator<svc::Handle<xdmp::StepExpr> > > const&, svc::Handle<xdmp::Value>&) const ()
+																													1: xdmp::DatabaseEvalFuture::_finish() ()
+																														1: xdmp::XDQPClientLocatorIteratorFuture::_finish() ()
+																															1: xdmp::XDQPClientListener::finish(xdmp::XDQPClientResponse&, svc::Decoder&) ()
+																																1: svc::Semaphore::wait(bool) const ()
+																																	1: sem_wait () from /lib64/libpthread.so.0
+				76: xdmp::XDBCServerThread::run() ()
+					76: svc::Socket::accept(sockaddr_in&) ()
+						76: accept () from /lib64/libpthread.so.0
+				52: xdmp::AppServerThread::run() ()
+					52: svc::Socket::accept(sockaddr_in&) ()
+						52: accept () from /lib64/libpthread.so.0
+				16: xdmp::ForeignForestJournalConsumer::futureFinisherThread() ()
+					16: svc::Semaphore::wait(bool) const ()
+						16: sem_wait () from /lib64/libpthread.so.0
+				16: xdmp::JournalConsumer::consumerThread() ()
+					16: svc::Semaphore::wait(bool) const ()
+						16: sem_wait () from /lib64/libpthread.so.0
+				8: xdmp::XDQPServerThread::run() ()
+					8: svc::Socket::accept(sockaddr_in&) ()
+						8: accept () from /lib64/libpthread.so.0
+				4: svc::StarterThread::run() ()
+					4: svc::Semaphore::wait(bool) const ()
+						4: sem_wait () from /lib64/libpthread.so.0
+				4: xdmp::ClusterManager::clusterThread() ()
+					4: svc::Thread::sleep(unsigned int) ()
+						4: nanosleep () from /lib64/libpthread.so.0
+4: _start ()
+	4: __libc_start_main () from /lib64/libc.so.6
+		4: xdmp::daemon(int, char const**) ()
+			4: xdmp::run() ()
+				4: xdmp::Server::backgroundLoop() ()
+					4: svc::Thread::sleep(unsigned int) ()
+						4: nanosleep () from /lib64/libpthread.so.0
