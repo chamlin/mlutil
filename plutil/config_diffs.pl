@@ -112,7 +112,7 @@ sub dump_groups {
             #print "\n-------------------------------------\n";
             if ($file_diff->{preceding}) {
                 print "\n\n";
-                system "diff $file_diff->{preceding} $file_diff->{filename}";
+                system "diff -C 5 $file_diff->{preceding} $file_diff->{filename}";
                 print "\n";
             } else {
                 print "first seen at this timestamp\n";
