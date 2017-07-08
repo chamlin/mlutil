@@ -25,7 +25,6 @@ ready_stats ($stats);
 # print STDERR Dumper $stats;
 
 dump_stats ($stats);
-dump_call_stats ($stats);
 dump_sample_times ($stats);
 dump_static_threads ($stats);
 dump_busy_threads ($stats);
@@ -136,29 +135,6 @@ sub dump_stats {
     close $fh;
 }
 
-# show aggregate stats
-# same as pstack, but for individual calls
-sub dump_call_stats {
-    my ($stats) = @_;
-    open my $fh, ">", "call-stats.out";
-
-    foreach my $call (sort { $stats->{call_sort_keys}{$b} <=> $stats->{call_sort_keys}{$a} } (keys %{$stats->{call_sort_keys}})) {
-        print $fh "\n========================================================= $call\n";
-        foreach my $file_index (0 .. $#{$stats->{filenames}}) {
-            # avoid many rows of zeros
-            if (sum (@{$stats->{call_counts}[$file_index]{$call}}) > 0) {
-                my $counts = join ('', (map { sprintf '%6s', $_ } @{$stats->{call_counts}[$file_index]{$call}}));
-                #print $fh "@{$stats->{sig_counts}[$file_index]{$sid}}  - $stats->{filenames}[$file_index]\n";
-                print $fh "$counts - $stats->{filenames}[$file_index]\n";
-            }
-        }
-        my $totals = join ('', (map { sprintf '%6s', $_ } @{$stats->{call_count_totals}{$call}}));
-        print $fh "$totals - totals\n\n";
-    }
-
-    close $fh;
-}
-
 sub dump_busy_threads {
     my ($stats) = @_;
     open my $fh, ">", "busy-threads.out";
@@ -259,7 +235,7 @@ sub dump_flame_info {
 
 # create lines summary for flamegraph output and matcher checking
 sub sum_line {
-    my (@lines, $join) = (@_, 1);
+    my (@lines) = @_;
     my @calls = ();
     foreach my $line (@lines) {
         $line =~ s/^\S+\s+\S+\s+in\s+//;
@@ -269,9 +245,7 @@ sub sum_line {
         $line =~ s/\s//g;
         push @calls, $line;
     }
-    my $return = \@calls;
-    if ($join) { $return = join (';', @calls) }
-    return $return;
+    return join (';', @calls);
 }
 
 # tree printer
@@ -296,34 +270,15 @@ sub _dump_tree {
 # compile from basic info
 sub ready_stats {
     my ($stats) = @_;
-    # dumps is # of pstacks
     my $dumps = $stats->{dump};
 
-    # sig_sums
-    my $stack_tree = {};
-    foreach my $sig (keys %{$stats->{sig_lines}}) {
-        $stats->{sig_sums}{$sig} = sum_line (@{$stats->{sig_lines}{$sig}});
-    }
-
     # uggh, fill in sparse counts, then create sort key (highest, to lowest, each slice)
-
-    #foreach my $file_counts (@{$stats->{sig_counts}}) {
-    foreach my $file_index (0 .. $#{$stats->{sig_counts}}) {
-        my $file_counts = $stats->{sig_counts}[$file_index];
+    foreach my $file_counts (@{$stats->{sig_counts}}) {
         foreach my $sid (keys %{$stats->{sig_lines}}) {
             my $sig_counts = $file_counts->{$sid};
-            foreach my $pstack_index (0 .. $dumps) {
-                unless (exists $file_counts->{$sid}[$pstack_index]) { $file_counts->{$sid}[$pstack_index] = 0 }
-                $stats->{sig_count_totals}{$sid}[$pstack_index] += ($sig_counts->[$pstack_index] ? $sig_counts->[$pstack_index] : 0);
-            }
-            # here, do call_counts
-            my $calls = sum_line (@{$stats->{sig_lines}{$sid}}, 0);
-            foreach my $call (@$calls) {
-                foreach my $pstack_index (0 .. $dumps) {
-                    my $count = $sig_counts->[$pstack_index] ? $sig_counts->[$pstack_index] : 0;
-                    $stats->{call_counts}[$file_index]{$call}[$pstack_index] += $count;
-                    $stats->{call_count_totals}{$call}[$pstack_index] += $count;
-                }
+            foreach my $i (0 .. $dumps) {
+                unless (exists $file_counts->{$sid}[$i]) { $file_counts->{$sid}[$i] = 0 }
+                $stats->{sig_count_totals}{$sid}[$i] += ($sig_counts->[$i] ? $sig_counts->[$i] : 0);
             }
             $stats->{sig_sort_keys}{$sid} = join ('-', map { sprintf("%08d", $_) } @$sig_counts);
         }
@@ -338,13 +293,10 @@ sub ready_stats {
              10 ** sum ( map { $_ > 0 } @{$stats->{sig_count_totals}{$sid}} )
     }
 
-    # sort key for calls
-    foreach my $call (keys %{$stats->{call_count_totals}}) {
-        #$stats->{sig_sort_keys}{$sid} = join ('-', map { sprintf("%08d", $_) } @{$stats->{sig_count_totals}{$sid}});
-        $stats->{call_sort_keys}{$call} = 
-             sum (@{$stats->{call_count_totals}{$call}})
-             *
-             10 ** sum ( map { $_ > 0 } @{$stats->{call_count_totals}{$call}} )
+    # sig_sums
+    my $stack_tree = {};
+    foreach my $sig (keys %{$stats->{sig_lines}}) {
+        $stats->{sig_sums}{$sig} = sum_line (@{$stats->{sig_lines}{$sig}});
     }
 
     # assign sig_classes/sig_matches
