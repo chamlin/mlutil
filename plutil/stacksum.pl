@@ -30,6 +30,7 @@ dump_static_threads ($stats);
 dump_busy_threads ($stats);
 dump_tree ($stats);
 dump_flame_info ($stats);
+dump_call_counts ($stats);
 
 
 
@@ -248,6 +249,17 @@ sub sum_line {
     return join (';', @calls);
 }
 
+# dump call counts
+sub dump_call_counts {
+    my ($stats) = @_;
+    my $call_counts = $stats->{call_counts};
+    open my $fh, ">", "stack-call-counts.out";
+    foreach my $call (sort { $call_counts->{$b} <=> $call_counts->{$a} } keys %{$call_counts}) {
+        print $fh "$call: $call_counts->{$call}.\n";
+    }
+    close $fh;
+}
+
 # tree printer
 sub dump_tree {
     my ($stats) = @_;
@@ -271,6 +283,8 @@ sub _dump_tree {
 sub ready_stats {
     my ($stats) = @_;
     my $dumps = $stats->{dump};
+
+
 
     # uggh, fill in sparse counts, then create sort key (highest, to lowest, each slice)
     foreach my $file_counts (@{$stats->{sig_counts}}) {
@@ -327,6 +341,14 @@ sub ready_stats {
         my @unique_tags = keys %{$stats->{sig_classes}{$sig}{tags}};
         $stats->{sig_classes}{$sig}{tags} = \@unique_tags;
     }
+
+    # create call counts
+    while (my ($sig, $sig_sum) = each %{$stats->{sig_sums}}) {
+        my $call_count = 0;
+        foreach my $count (@{$stats->{sig_count_totals}{$sig}}) { $call_count += $count }
+        foreach my $call (split /;/, $sig_sum) { $stats->{call_counts}{$call} += $call_count }
+    }
+
 
     # static threads
     my $thread_sigs = $stats->{thread_sigs};
