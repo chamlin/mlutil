@@ -1,0 +1,79 @@
+
+========================================================= cf127085f3d42a589b376f0140b64580
+     1     1     1 - test3
+     1     1     1 - totals
+
+> Idle thread waiting for XDQP data
+tags: XDQP idle noflame
+#0  0x00007ffff356a283 in poll () from /lib64/libc.so.6
+#1  0x000000000432e859 in svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+#2  0x0000000004332a6d in svc::Socket::recv(char*, char*, unsigned int) ()
+#3  0x0000000004332eff in svc::Sockbuf::underflow() ()
+#4  0x000000000432a2a6 in svc::Sockbuf::xsgetn(char*, long) ()
+#5  0x0000000003fe59d4 in xdmp::XDQPServerConnection::recv(xdmp::XDQPServerListener const&, std::vector<unsigned int, std::allocator<unsigned int> >&) ()
+#6  0x0000000004042a48 in xdmp::XDQPServerConnection::run() ()
+#7  0x0000000004046a40 in xdmp::XDQPServerConnectionThread::run() ()
+#8  0x000000000434166e in svc::Thread::top() ()
+#9  0x00000000043428b9 in runThread ()
+#10 0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#11 0x00007ffff3573aad in clone () from /lib64/libc.so.6
+
+========================================================= 194d175ef1c831f03e5e8798727f96b6
+     1     0     0 - test1
+     1     0     0 - test3
+     2     0     0 - totals
+
+> Starter thread
+tags: noflame idle
+#0  0x00007ffff40eba00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
+#2  0x000000000433f151 in svc::StarterThread::run() ()
+#3  0x000000000434166e in svc::Thread::top() ()
+#4  0x00000000043428b9 in runThread ()
+#5  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007ffff3573aad in clone () from /lib64/libc.so.6
+
+========================================================= 2378a2ae075b939d7d48ff716dfe9792
+     2     0     0 - test2
+     2     0     0 - totals
+
+#0  0x00007ffff40eba00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
+#2  0x0000000004325a74 in svc::PrioritySemtex::acquire(svc::PrioritySemtexSection&, bool) ()
+#3  0x000000000349143d in xdmp::RecoveryManager::_record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, svc::PrioritySemtexSection&) ()
+#4  0x0000000003493797 in xdmp::RecoveryManager::record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, bool) ()
+#5  0x000000000282f300 in xdmp::Forest::fastQueryTimestampJournalTaskRun(unsigned long) ()
+#6  0x00000000043445bf in svc::PooledThread::run() ()
+#7  0x000000000434166e in svc::Thread::top() ()
+#8  0x00000000043428b9 in runThread ()
+#9  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#10 0x00007ffff3573aad in clone () from /lib64/libc.so.6
+
+========================================================= 6c97f4b4594c3193e44bea49c725b910
+     0     1     0 - test2
+     0     1     0 - totals
+
+#1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
+#2  0x0000000004325a74 in svc::PrioritySemtex::acquire(svc::PrioritySemtexSection&, bool) ()
+#3  0x000000000349143d in xdmp::RecoveryManager::_record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, svc::PrioritySemtexSection&) ()
+#4  0x0000000003493797 in xdmp::RecoveryManager::record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, bool) ()
+#5  0x000000000282f300 in xdmp::Forest::fastQueryTimestampJournalTaskRun(unsigned long) ()
+#6  0x00000000043445bf in svc::PooledThread::run() ()
+#7  0x000000000434166e in svc::Thread::top() ()
+#8  0x00000000043428b9 in runThread ()
+#9  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#10 0x00007ffff3573aad in clone () from /lib64/libc.so.6
+
+========================================================= ddc154da6a7c699c481eb10b6c47ac66
+     0     1     0 - test1
+     0     1     0 - totals
+
+> Pooled thread
+tags: noflame idle
+#0  0x00007ffff40eba00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
+#2  0x00000000043445a6 in svc::PooledThread::run() ()
+#3  0x000000000434166e in svc::Thread::top() ()
+#4  0x00000000043428b9 in runThread ()
+#5  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007ffff3573aad in clone () from /lib64/libc.so.6

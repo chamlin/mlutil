@@ -1,0 +1,21 @@
+================= static threads ==================
+
+=======================================
+
+#0  0x00007ffff356a283 in poll () from /lib64/libc.so.6
+#1  0x000000000432e859 in svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+#2  0x0000000004332a6d in svc::Socket::recv(char*, char*, unsigned int) ()
+#3  0x0000000004332eff in svc::Sockbuf::underflow() ()
+#4  0x000000000432a2a6 in svc::Sockbuf::xsgetn(char*, long) ()
+#5  0x0000000003fe59d4 in xdmp::XDQPServerConnection::recv(xdmp::XDQPServerListener const&, std::vector<unsigned int, std::allocator<unsigned int> >&) ()
+#6  0x0000000004042a48 in xdmp::XDQPServerConnection::run() ()
+#7  0x0000000004046a40 in xdmp::XDQPServerConnectionThread::run() ()
+#8  0x000000000434166e in svc::Thread::top() ()
+#9  0x00000000043428b9 in runThread ()
+#10 0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#11 0x00007ffff3573aad in clone () from /lib64/libc.so.6
+
+
+file test3, thread id 0x7ffff7e53700, sig cf127085f3d42a589b376f0140b64580.
+
+

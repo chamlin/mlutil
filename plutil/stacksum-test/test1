@@ -1,0 +1,18 @@
+Fri Sep  1 15:01:10 BST 2017
+Thread 1 (Thread 0x7ffff7fce700 (LWP 10897)):
+#0  0x00007ffff40eba00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
+#2  0x000000000433f151 in svc::StarterThread::run() ()
+#3  0x000000000434166e in svc::Thread::top() ()
+#4  0x00000000043428b9 in runThread ()
+#5  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007ffff3573aad in clone () from /lib64/libc.so.6
+Fri Sep  1 15:01:20 BST 2017
+Thread 3 (Thread 0x7ffff7fce700 (LWP 10897)):
+#0  0x00007ffff40eba00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
+#2  0x00000000043445a6 in svc::PooledThread::run() ()
+#3  0x000000000434166e in svc::Thread::top() ()
+#4  0x00000000043428b9 in runThread ()
+#5  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007ffff3573aad in clone () from /lib64/libc.so.6

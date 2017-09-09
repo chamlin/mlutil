@@ -1,0 +1,37 @@
+Fri Sep  1 15:02:20 BST 2017
+Thread 752 (Thread 0x7ffff7fce700 (LWP 10897)):
+#0  0x00007ffff40eba00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
+#2  0x0000000004325a74 in svc::PrioritySemtex::acquire(svc::PrioritySemtexSection&, bool) ()
+#3  0x000000000349143d in xdmp::RecoveryManager::_record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, svc::PrioritySemtexSection&) ()
+#4  0x0000000003493797 in xdmp::RecoveryManager::record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, bool) ()
+#5  0x000000000282f300 in xdmp::Forest::fastQueryTimestampJournalTaskRun(unsigned long) ()
+#6  0x00000000043445bf in svc::PooledThread::run() ()
+#7  0x000000000434166e in svc::Thread::top() ()
+#8  0x00000000043428b9 in runThread ()
+#9  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#10 0x00007ffff3573aad in clone () from /lib64/libc.so.6
+Thread 7 (Thread 0x7ff888888700 (LWP 10897)):
+#0  0x00007ffff40eba00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
+#2  0x0000000004325a74 in svc::PrioritySemtex::acquire(svc::PrioritySemtexSection&, bool) ()
+#3  0x000000000349143d in xdmp::RecoveryManager::_record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, svc::PrioritySemtexSection&) ()
+#4  0x0000000003493797 in xdmp::RecoveryManager::record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, bool) ()
+#5  0x000000000282f300 in xdmp::Forest::fastQueryTimestampJournalTaskRun(unsigned long) ()
+#6  0x00000000043445bf in svc::PooledThread::run() ()
+#7  0x000000000434166e in svc::Thread::top() ()
+#8  0x00000000043428b9 in runThread ()
+#9  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#10 0x00007ffff3573aad in clone () from /lib64/libc.so.6
+Fri Sep  1 15:02:29 BST 2017
+Thread 52 (Thread 0x7ffff7fce700 (LWP 10897)):
+#1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
+#2  0x0000000004325a74 in svc::PrioritySemtex::acquire(svc::PrioritySemtexSection&, bool) ()
+#3  0x000000000349143d in xdmp::RecoveryManager::_record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, svc::PrioritySemtexSection&) ()
+#4  0x0000000003493797 in xdmp::RecoveryManager::record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, bool) ()
+#5  0x000000000282f300 in xdmp::Forest::fastQueryTimestampJournalTaskRun(unsigned long) ()
+#6  0x00000000043445bf in svc::PooledThread::run() ()
+#7  0x000000000434166e in svc::Thread::top() ()
+#8  0x00000000043428b9 in runThread ()
+#9  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#10 0x00007ffff3573aad in clone () from /lib64/libc.so.6

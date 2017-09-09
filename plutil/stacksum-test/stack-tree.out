@@ -1,0 +1,24 @@
+9: clone () from /lib64/libc.so.6
+	9: start_thread () from /lib64/libpthread.so.0
+		9: runThread ()
+			9: svc::Thread::top() ()
+				4: svc::PooledThread::run() ()
+					3: xdmp::Forest::fastQueryTimestampJournalTaskRun(unsigned long) ()
+						3: xdmp::RecoveryManager::record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, bool) ()
+							3: xdmp::RecoveryManager::_record(xdmp::RecoveryContext&, svc::Handle<xdmp::RecoveryOp>&, bool, bool, bool, svc::PrioritySemtexSection&) ()
+								3: svc::PrioritySemtex::acquire(svc::PrioritySemtexSection&, bool) ()
+									3: svc::Semaphore::wait(bool, long) const ()
+										2: sem_wait () from /lib64/libpthread.so.0
+					1: svc::Semaphore::wait(bool, long) const ()
+						1: sem_wait () from /lib64/libpthread.so.0
+				3: xdmp::XDQPServerConnectionThread::run() ()
+					3: xdmp::XDQPServerConnection::run() ()
+						3: xdmp::XDQPServerConnection::recv(xdmp::XDQPServerListener const&, std::vector<unsigned int, std::allocator<unsigned int> >&) ()
+							3: svc::Sockbuf::xsgetn(char*, long) ()
+								3: svc::Sockbuf::underflow() ()
+									3: svc::Socket::recv(char*, char*, unsigned int) ()
+										3: svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
+											3: poll () from /lib64/libc.so.6
+				2: svc::StarterThread::run() ()
+					2: svc::Semaphore::wait(bool, long) const ()
+						2: sem_wait () from /lib64/libpthread.so.0
