@@ -131,7 +131,7 @@ sub dump_sample_times {
     open my $fh, ">", "stack-sample-times.out";
 
     print $fh "========================= sample date times ==========================\n";
-    foreach my $file (keys %{$stats->{file_dates}}) {
+    foreach my $file (sort keys %{$stats->{file_dates}}) {
         print $fh "\n\n", "$file:\n";
         foreach my $time (@{$stats->{file_dates}{$file}}) {
             print $fh "    $time\n";
@@ -234,7 +234,7 @@ sub dump_flame_info {
     # overall flamegraphs
     open my $fh, ">", "flame-info.out";
     open my $reverse_fh, ">", "flame-reversed-info.out";
-    foreach my $sig (keys %{$stats->{sig_count_totals}}) {
+    foreach my $sig (sort keys %{$stats->{sig_count_totals}}) {
         if ($ignored{$sig}) { next }
         # sum
         my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
@@ -420,14 +420,6 @@ sub ready_stats {
             }
         }
     }
-
-
-    while (my ($sig, $sig_sum) = each %{$stats->{sig_sums}}) {
-        my $call_count = 0;
-        foreach my $count (@{$stats->{sig_count_totals}{$sig}}) { $call_count += $count }
-        foreach my $call (split /;/, $sig_sum) { $stats->{call_counts}{$call} += $call_count }
-    }
-
 
     # static threads
     my $thread_sigs = $stats->{thread_sigs};
