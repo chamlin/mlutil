@@ -4,7 +4,7 @@
      1     1     1 - totals
 
 > Idle thread waiting for XDQP data
-tags: XDQP idle noflame
+tags: idle noflame XDQP
 #0  0x00007ffff356a283 in poll () from /lib64/libc.so.6
 #1  0x000000000432e859 in svc::Socket::_wait(unsigned int, bool, bool, char const*) const ()
 #2  0x0000000004332a6d in svc::Socket::recv(char*, char*, unsigned int) ()
@@ -24,7 +24,7 @@ tags: XDQP idle noflame
      2     0     0 - totals
 
 > Starter thread
-tags: noflame idle
+tags: idle noflame
 #0  0x00007ffff40eba00 in sem_wait () from /lib64/libpthread.so.0
 #1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
 #2  0x000000000433f151 in svc::StarterThread::run() ()
@@ -49,6 +49,20 @@ tags: noflame idle
 #9  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
 #10 0x00007ffff3573aad in clone () from /lib64/libc.so.6
 
+========================================================= ddc154da6a7c699c481eb10b6c47ac66
+     0     1     0 - test1
+     0     1     0 - totals
+
+> Pooled thread
+tags: noflame idle
+#0  0x00007ffff40eba00 in sem_wait () from /lib64/libpthread.so.0
+#1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
+#2  0x00000000043445a6 in svc::PooledThread::run() ()
+#3  0x000000000434166e in svc::Thread::top() ()
+#4  0x00000000043428b9 in runThread ()
+#5  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
+#6  0x00007ffff3573aad in clone () from /lib64/libc.so.6
+
 ========================================================= 6c97f4b4594c3193e44bea49c725b910
      0     1     0 - test2
      0     1     0 - totals
@@ -63,17 +77,3 @@ tags: noflame idle
 #8  0x00000000043428b9 in runThread ()
 #9  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
 #10 0x00007ffff3573aad in clone () from /lib64/libc.so.6
-
-========================================================= ddc154da6a7c699c481eb10b6c47ac66
-     0     1     0 - test1
-     0     1     0 - totals
-
-> Pooled thread
-tags: noflame idle
-#0  0x00007ffff40eba00 in sem_wait () from /lib64/libpthread.so.0
-#1  0x0000000004322515 in svc::Semaphore::wait(bool, long) const ()
-#2  0x00000000043445a6 in svc::PooledThread::run() ()
-#3  0x000000000434166e in svc::Thread::top() ()
-#4  0x00000000043428b9 in runThread ()
-#5  0x00007ffff40e5aa1 in start_thread () from /lib64/libpthread.so.0
-#6  0x00007ffff3573aad in clone () from /lib64/libc.so.6
