@@ -98,7 +98,7 @@ sub dump_sample_times {
     open my $fh, ">", "stack-sample-times.out";
 
     print $fh "========================= sample date times ==========================\n";
-    foreach my $file (keys %{$stats->{file_dates}}) {
+    foreach my $file (sort keys %{$stats->{file_dates}}) {
         print $fh "\n\n", "$file:\n";
         foreach my $time (@{$stats->{file_dates}{$file}}) {
             print $fh "    $time\n";
