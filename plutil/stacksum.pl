@@ -423,10 +423,11 @@ sub do_file {
             if (scalar (@{$current->{lines}})) {
                 file_thread ($stats, $current);
             }
-            $current = { tid => $thread_id, filename => $filename };
+            $current = { tid => $thread_id, filename => $filename, dump => $stats->{dump} };
         } elsif ($line =~ /\d\d:\d\d:\d\d/) {
             # guess it's a time-date line?
             push @{$stats->{file_dates}{$filename}}, $line;
+            # start of a new dump?
             if (scalar (@{$current->{lines}})) {
                 $stats->{dump}++;
             }
@@ -447,7 +448,7 @@ sub file_thread {
     $thread->{sig} = md5_hex ($sig_text);
     # increment sig count for this dump.  sig_counts index matches filenames index.
     # $stats->{sig_counts}[$file_index]{$sig}[$dump]     (dump is the sample in the file).
-    ${$stats->{sig_counts}[$#{$stats->{filenames}}]{$thread->{sig}}}[$stats->{dump}]++;
+    ${$stats->{sig_counts}[$#{$stats->{filenames}}]{$thread->{sig}}}[$thread->{dump}]++;
     # increment sig count for this thread
     my $thread_uid = md5_hex ("$thread->{filename}}{$thread->{tid}}");
     $stats->{thread_uids}{$thread_uid} = { filename => $thread->{filename}, id => $thread->{tid} };
