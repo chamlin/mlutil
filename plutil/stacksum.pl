@@ -15,7 +15,7 @@ my @filenames = @ARGV;
 
 my $info_dir = "$FindBin::Bin/stack-class";
 
-my $stats = { dump => 0, classes => read_stack_info_files ($info_dir) };
+my $stats = { dump => 0, max_dump => 0, classes => read_stack_info_files ($info_dir) };
 my $threads = { };
 
 for my $filename (@filenames) {  do_file ($stats, $filename) }
@@ -28,9 +28,42 @@ dump_stats ($stats);
 dump_sample_times ($stats);
 dump_static_threads ($stats);
 dump_busy_threads ($stats);
-dump_tree ($stats);
+# junk
+#dump_tree ($stats);
 dump_flame_info ($stats);
 dump_call_counts ($stats);
+dump_call_stats ($stats);
+
+
+# $sig = md5 of call stack
+# $sid = md5 of node+sig  (thread uid)
+# $tid = thread id in movie
+# (may not be fully consistent throughout)
+
+# $stats->{call_counts}{$call} = count
+# $stats->{classes}{matchers} = [ list of matcher refs ]
+# $stats->{dump} = counter for the sample you are reading.  zero based (so index)
+# $stats->{file_dates}{$filename} = [ sample date lines ... ]
+# $stats->{filenames} = [ list of filenames in order ]
+# $stats->{max_dump} = max of $stats->{dump} across files/ndoes.
+# $stats->{sig_classes}{$sig}{names} = [ names of matched matchers ]
+# $stats->{sig_classes}{$sig}{tags}{$tag} = 1
+# $stats->{sig_count_totals}{$sig} = [ list of counts for each sample across all nodes ]
+# $stats->{sig_counts}[$file_index]{$sig}[$dump_index] = count.
+# $stats->{sig_lines}{$sig} = [ text lines of sig, chomped ]
+# $stats->{sig_matches}{$sig} = [ refs to matchers matched ]
+# $stats->{sig_sort_keys}{$sig} = hokey sort for stats
+# $stats->{sigs_idle}{$sig}++   flag of idle matches. used to find busy threads
+# $stats->{sig_sums}{$sig} = summary line for flamegraph and matcher
+# $stats->{static_thread_uids}{$sid} = 1
+# $stats->{static_threads}{$sig} = [ { filename => x, id => y} ... ]
+# $stats->{thread_sigs}{$sid} = $sig
+# $stats->{thread_uids}{$sid} = { filename => $file, id => $tid }
+# $stats->{call_stats}{$timestamp}{pstack_call}{$filename}{$call} += $count;
+# $stats->{file_max_dump}[$file_dump_index] = max dump index for filename (0 based)
+
+
+
 
 
 
@@ -98,7 +131,7 @@ sub dump_sample_times {
     open my $fh, ">", "stack-sample-times.out";
 
     print $fh "========================= sample date times ==========================\n";
-    foreach my $file (sort keys %{$stats->{file_dates}}) {
+    foreach my $file (keys %{$stats->{file_dates}}) {
         print $fh "\n\n", "$file:\n";
         foreach my $time (@{$stats->{file_dates}{$file}}) {
             print $fh "    $time\n";
@@ -113,24 +146,24 @@ sub dump_stats {
     my ($stats) = @_;
     open my $fh, ">", "stack-stats.out";
 
-    foreach my $sid (sort { $stats->{sig_sort_keys}{$b} <=> $stats->{sig_sort_keys}{$a} } (keys %{$stats->{sig_sort_keys}})) {
-        print $fh "\n========================================================= $sid\n";
+    foreach my $sig (sort { $stats->{sig_sort_keys}{$b} <=> $stats->{sig_sort_keys}{$a} } (keys %{$stats->{sig_sort_keys}})) {
+        print $fh "\n========================================================= $sig\n";
         foreach my $file_index (0 .. $#{$stats->{filenames}}) {
             # avoid many rows of zeros
-            if (sum (@{$stats->{sig_counts}[$file_index]{$sid}}) > 0) {
-                my $counts = join ('', (map { sprintf '%6s', $_ } @{$stats->{sig_counts}[$file_index]{$sid}}));
-                #print $fh "@{$stats->{sig_counts}[$file_index]{$sid}}  - $stats->{filenames}[$file_index]\n";
+            if (sum (@{$stats->{sig_counts}[$file_index]{$sig}}) > 0) {
+                my $counts = join ('', (map { sprintf '%6s', $_ } @{$stats->{sig_counts}[$file_index]{$sig}}));
+                #print $fh "@{$stats->{sig_counts}[$file_index]{$sig}}  - $stats->{filenames}[$file_index]\n";
                 print $fh "$counts - $stats->{filenames}[$file_index]\n";
             }
         }
-        my $totals = join ('', (map { sprintf '%6s', $_ } @{$stats->{sig_count_totals}{$sid}}));
+        my $totals = join ('', (map { sprintf '%6s', $_ } @{$stats->{sig_count_totals}{$sig}}));
         print $fh "$totals - totals\n\n";
-        my $classes = $stats->{sig_classes}{$sid};
+        my $classes = $stats->{sig_classes}{$sig};
         if ($classes) {
             if ($classes->{names}) { print $fh join ("\n", map { "> " . $_ } @{$classes->{names}}), "\n"; }
             if ($classes->{tags}) { print $fh "tags: ", join (' ', @{$classes->{tags}}), "\n"; }
         }
-        print $fh join ("\n", @{$stats->{sig_lines}{$sid}}), "\n";
+        print $fh join ("\n", @{$stats->{sig_lines}{$sig}}), "\n";
     }
 
     close $fh;
@@ -249,6 +282,26 @@ sub sum_line {
     return join (';', @calls);
 }
 
+# dump call stats
+sub dump_call_stats {
+    my ($stats) = @_;
+    open my $fh, ">", "stack-call-stats.tsv";
+    print $fh "timestamp\treading\tresource\taction\tvalue\n";
+    foreach my $timestamp (sort keys %{$stats->{call_stats}}) {
+        foreach my $filename (keys %{$stats->{call_stats}{$timestamp}{pstack_call}}) {
+            foreach my $call (keys %{$stats->{call_stats}{$timestamp}{pstack_call}{$filename}}) {
+                my $count = $stats->{call_stats}{$timestamp}{pstack_call}{$filename}{$call};
+                if ($count) {
+                    # not each node may have it
+                    print $fh "$timestamp\tpstack_call\t$filename\t$call\t$count\n";
+                }
+            }
+        }
+    }
+    close $fh;
+}
+
+
 # dump call counts
 sub dump_call_counts {
     my ($stats) = @_;
@@ -282,33 +335,33 @@ sub _dump_tree {
 # compile from basic info
 sub ready_stats {
     my ($stats) = @_;
-    my $dumps = $stats->{dump};
+    my $dumps = $stats->{max_dump};
 
 
+    # sig_counts: array of hashes for each node/file.  each hash as sigs -> array of counts for each sample for the node/file.
 
     # uggh, fill in sparse counts, then create sort key (highest, to lowest, each slice)
     foreach my $file_counts (@{$stats->{sig_counts}}) {
-        foreach my $sid (keys %{$stats->{sig_lines}}) {
-            my $sig_counts = $file_counts->{$sid};
+        foreach my $sig (keys %{$stats->{sig_lines}}) {
+            my $sig_counts = $file_counts->{$sig};
             foreach my $i (0 .. $dumps) {
-                unless (exists $file_counts->{$sid}[$i]) { $file_counts->{$sid}[$i] = 0 }
-                $stats->{sig_count_totals}{$sid}[$i] += ($sig_counts->[$i] ? $sig_counts->[$i] : 0);
+                unless (exists $file_counts->{$sig}[$i]) { $file_counts->{$sig}[$i] = 0 }
+                $stats->{sig_count_totals}{$sig}[$i] += ($sig_counts->[$i] ? $sig_counts->[$i] : 0);
             }
-            $stats->{sig_sort_keys}{$sid} = join ('-', map { sprintf("%08d", $_) } @$sig_counts);
+            $stats->{sig_sort_keys}{$sig} = join ('-', map { sprintf("%08d", ($_ ? $_ : 0)) } @$sig_counts);
         }
     }
 
     # sort key for aggregates
-    foreach my $sid (keys %{$stats->{sig_count_totals}}) {
-        #$stats->{sig_sort_keys}{$sid} = join ('-', map { sprintf("%08d", $_) } @{$stats->{sig_count_totals}{$sid}});
-        $stats->{sig_sort_keys}{$sid} = 
-             sum (@{$stats->{sig_count_totals}{$sid}})
+    foreach my $sig (keys %{$stats->{sig_count_totals}}) {
+        #$stats->{sig_sort_keys}{$sig} = join ('-', map { sprintf("%08d", $_) } @{$stats->{sig_count_totals}{$sig}});
+        $stats->{sig_sort_keys}{$sig} = 
+             sum (@{$stats->{sig_count_totals}{$sig}})
              *
-             10 ** sum ( map { $_ > 0 } @{$stats->{sig_count_totals}{$sid}} )
+             10 ** sum ( map { $_ > 0 } @{$stats->{sig_count_totals}{$sig}} )
     }
 
     # sig_sums
-    my $stack_tree = {};
     foreach my $sig (keys %{$stats->{sig_lines}}) {
         $stats->{sig_sums}{$sig} = sum_line (@{$stats->{sig_lines}{$sig}});
     }
@@ -349,24 +402,50 @@ sub ready_stats {
         foreach my $call (split /;/, $sig_sum) { $stats->{call_counts}{$call} += $call_count }
     }
 
+    # create call stats, maybe plot-able
+    for (my $file_index = 0; $file_index <= $#{$stats->{filenames}}; $file_index++) {
+        my $filename = $stats->{filenames}[$file_index];
+        foreach my $sig (keys %{$stats->{sig_counts}[$file_index]}) {
+            for (my $dump_index = 0; $dump_index <= $stats->{file_max_dump}[$file_index]; $dump_index++) {
+                my $dateline = $stats->{file_dates}{$filename}[$dump_index];
+#print STDERR "$filename, $sig, $dump_index @ $dateline.\n";
+                my $timestamp = iso_from_pstack ($dateline);
+                my $count = $stats->{sig_counts}[$file_index]{$sig}[$dump_index];
+#print STDERR "$file_index/$filename, $sig, $dump_index, $count.\n";
+                unless ($count)  { next }
+                foreach my $call (split /;/, $stats->{sig_sums}{$sig}) { 
+                    $call =~ s/[\(<].*//;
+                    $stats->{call_stats}{$timestamp}{pstack_call}{$filename}{$call} += $count;
+                }
+            }
+        }
+    }
+
+
+    while (my ($sig, $sig_sum) = each %{$stats->{sig_sums}}) {
+        my $call_count = 0;
+        foreach my $count (@{$stats->{sig_count_totals}{$sig}}) { $call_count += $count }
+        foreach my $call (split /;/, $sig_sum) { $stats->{call_counts}{$call} += $call_count }
+    }
+
 
     # static threads
     my $thread_sigs = $stats->{thread_sigs};
-    foreach my $thread_sig (keys %{$thread_sigs}) {
-        my $thread_info = $stats->{thread_uids}{$thread_sig};
+    foreach my $thread_sid (keys %{$thread_sigs}) {
+        my $thread_info = $stats->{thread_uids}{$thread_sid};
         my $number_of_samples = $#{$stats->{file_dates}{$thread_info->{filename}}} + 1;
         my $is_static = 1;
-        my $stack_hash = $thread_sigs->{$thread_sig}[0];
+        my $stack_hash = $thread_sigs->{$thread_sid}[0];
         # all samples have to exist and match first
         foreach my $index (1 .. $number_of_samples-1) {
-            unless ($thread_sigs->{$thread_sig}[$index] && $stack_hash eq $thread_sigs->{$thread_sig}[$index]) {
+            unless ($thread_sigs->{$thread_sid}[$index] && $stack_hash eq $thread_sigs->{$thread_sid}[$index]) {
                 $is_static = 0;
                 last;
             }
         }
         if ($is_static) {
             push @{$stats->{static_threads}{$stack_hash}}, $thread_info;
-            $stats->{static_thread_uids}{$thread_sig} = 1;
+            $stats->{static_thread_uids}{$thread_sid} = 1;
         }
     }
 
@@ -383,24 +462,26 @@ sub ready_stats {
             if ($stats->{sigs_idle}{$thread_sig}) { delete $stats->{thread_sigs_busy}{$thread_uid}; last }
         }
     }
+
     # stack_tree
-    $stats->{stack_tree} = $stack_tree;
-    foreach my $sig (keys %{$stats->{sig_count_totals}}) {
-        my $level = 0;
-        my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
-        my $ref = $stack_tree;
-        foreach my $line (reverse @{$stats->{sig_lines}{$sig}}) {
-            $line =~ /^\S+\s+\S+\s+in\s+(.+)/;
-            my $call = $1;
-            if (exists $ref->{$call}) {
-                $ref->{$call}{count} += $sig_count;
-            } else {
-                $ref->{$call} = { count => $sig_count, kids => {}, level => $level };
-            }
-            $ref = $ref->{$call}{kids};
-            $level++;
-        }
-    }
+    #my $stack_tree = {};
+    #$stats->{stack_tree} = $stack_tree;
+    #foreach my $sig (keys %{$stats->{sig_count_totals}}) {
+        #my $level = 0;
+        ##my $sig_count = sum (@{$stats->{sig_count_totals}{$sig}});
+        #my $ref = $stack_tree;
+        #foreach my $line (reverse @{$stats->{sig_lines}{$sig}}) {
+            #$line =~ /^\S+\s+\S+\s+in\s+(.+)/;
+            #my $call = $1;
+            #if (exists $ref->{$call}) {
+                #$ref->{$call}{count} += $sig_count;
+            #} else {
+                #$ref->{$call} = { count => $sig_count, kids => {}, level => $level };
+            #}
+            #$ref = $ref->{$call}{kids};
+            #$level++;
+        #}
+    #}
 }
 
 # input file
@@ -427,7 +508,6 @@ sub do_file {
         } elsif ($line =~ /\d\d:\d\d:\d\d/) {
             # guess it's a time-date line?
             push @{$stats->{file_dates}{$filename}}, $line;
-            # start of a new dump?
             if (scalar (@{$current->{lines}})) {
                 $stats->{dump}++;
             }
@@ -436,8 +516,26 @@ sub do_file {
         }    
     }
     close ($fh);
+    # max for this file(index)
+    $stats->{file_max_dump}[$#{$stats->{filenames}}] = $stats->{dump}; 
+    # max across files/nodes
+    if ($stats->{dump} > $stats->{max_dump})  { $stats->{max_dump} = $stats->{dump} }
     file_thread ($stats, $current);
     return $stats;
+}
+
+sub iso_from_pstack {
+    my ($s) = @_;
+    my ($day, $mo, $date, $time, $offset, $year) = split (/\s+/, $s);
+    my %mos = (
+        Jan => 1, Feb => 2, Mar => 3, Apr => 4, May => 5, Jun => 6, Jul => 7, Aug => 8, Sep => 9, Oct => 10, Nov => 11, Dec => 12
+    );
+    my $iso = sprintf ('%04d-%02d-%02d', $year, $mos{$mo}, $date, ) . ' ' . $time;
+    unless ($iso =~ /2\d\d\d-\d[1-9]-\d\d \d\d:\d\d:\d\d/) {
+        print STDERR "Can't make timestamp from $s.\n";
+        return "1970-01-01 00:00:00";
+    }
+    return $iso;
 }
 
 # add a thread dump to the stats
