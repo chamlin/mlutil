@@ -16,15 +16,19 @@ then
 
     open -a Google\ Chrome.app *.svg
 
-## stacksum2.pl
-
-summarize pstacks.  Give stacks with counts in each pstack in the movie.  Ordered roughly by number of nodes, then by threads.  Works with multiple files.
-
-next:  sample date-time saved
+use --reverse to generate reverse flamegraphs.
 
 ## pull_threads.pl
 
 extract segfault stack traces from a log file.
+
+-s takes a number.  this many leading space-delimited fields will be stripped.  For dealing with logs like 
+
+mynode-01.foo.com 2017-10-20 23:46:22 Info: ...
+
+So, just:
+
+for log in ErrorLog\* ; do ~/git/mlutil/plutil/pull-threads.pl -s 1 $log > $log.fault ; done
 
 ## sar2csv.pl
 
