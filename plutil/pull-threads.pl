@@ -3,7 +3,7 @@ use strict;
 
 # separates dumps.  should handle disconnects in dumps in/between threads
 # compresses consecutive calls
-
+use Getopt::Std;
 use Data::Dumper;
 
 my $default_date = 
@@ -14,10 +14,19 @@ my $default_date =
          'type' => 'date_line'
        };
 
-my $s = { state => 'general', sys_lines => [], last_date_line => $default_date, lines => 0, dumps => [] };
+my $s = { state => 'general', sys_lines => [], last_date_line => $default_date, lines => 0, dumps => [], opts => { s => 0 } };
+
+
+# s is # of space delimited leading fields to carve off
+getopt ('s', $s->{opts});
 
 while (my $line = <>) {
     chomp $line;
+    # skip (possibly) some fields (usually node name?)
+    for (my $remove = $s->{opts}{s}; $remove; $remove--) {
+        my @parts = split (/\s+/, $line, 2);
+        $line = $parts[1];
+    }
     $s->{lines}++;
     my $typed = type_line ($line);
     my $do = process_typed_line ($s, $typed);
