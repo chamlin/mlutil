@@ -11,14 +11,23 @@ my $dirpath = '.';
 my $dir;
 opendir ($dir, $dirpath);
 my @files =
-    map { my ($base) = $_ =~ /^([a-z]+)/; { 'filename' => $_, 'base' => $1} }
+    map { my ($base, $version) = $_ =~ /^([a-z]+)(_\d+)?/; { 'filename' => $_, 'base' => $base, 'version' => $version } }
     grep { /\.xml$/ }
     readdir ($dir);
 close ($dir);
 
-# add timestamps and sort by them
-foreach my $file (@files) { file_timestamp ($file) }
-@files = sort { $a->{timestamp} <=> $b->{timestamp} } @files;
+# add timestamps, fix up versions, and sort by them
+foreach my $file (@files) {
+    file_timestamp ($file);
+    if ($file->{version}) { $file->{version} =~ s/^_// } else { $file->{version} = 0; }
+}
+@files = sort {
+    if ($a->{timestamp} != $b->{timestamp}) {
+        $a->{timestamp} <=> $b->{timestamp}
+    } else {
+        $b->{version} <=> $a->{version}
+    }
+} @files;
 
 dump_sorted_files (@files);
 
