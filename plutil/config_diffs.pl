@@ -16,7 +16,7 @@ my @files =
     readdir ($dir);
 close ($dir);
 
-# add timestamps, fix up versions, and sort by them
+# add timestamps, fix up versions, and sort by timestamp, version
 foreach my $file (@files) {
     file_timestamp ($file);
     if ($file->{version}) { $file->{version} =~ s/^_// } else { $file->{version} = 0; }
@@ -31,50 +31,44 @@ foreach my $file (@files) {
 
 dump_sorted_files (@files);
 
-# initialize the current_files to start, and preceding files
-my %current_files = ();
-my %bases = ();
+# create timestamp-ordered diffs and init groups
+my @groups = ();
+# this is max gap between actions that will be grouped.
+my $group_window = seconds_in_ticks (120);
+my %current_bases = ();
+
 foreach my $file (@files) {
     my $base = $file->{base};
-    $bases{$base} = 0;
-    if (exists $current_files{$base}) {
-        $file->{preceding} = $current_files{$base};
-    }
-    $current_files{$base} = $file->{filename};
-}
-my $number_of_bases = scalar keys %bases;
-
-
-#init groups
-my @groups = ();
-my $first = shift @files;
-my %bases_seen = (
-    $first->{base} => 1,
-);
-new_group (\@groups, $first);
-while (scalar keys %bases_seen < $number_of_bases) {
-    my $next = shift @files;
-    unless (exists $next->{filename}) { die "Huh?  File: ", Dumper ($next), "\n"; }
-    $bases_seen{$next->{base}}++;
-    new_group_file (\@groups, $next);
-}
-
-
-my $group_window = seconds_in_ticks (120);
-
-# finish groups
-while (scalar @files) {
-    my $top_group = $groups[-1];
-    my $next = shift @files;
-    if ($next->{timestamp} - $top_group->{end_timestamp} > $group_window) {
-        new_group (\@groups, $next);
+    if (exists $current_bases{$base}) {
+        my $diff = {
+            older => $current_bases{$base},
+            newer => $file,
+            # timestamp is time of change
+            timestamp => $file->{timestamp},
+        };
+        # update current for base and current set
+        $current_bases{$base} = $file;
+        $diff->{current} = join ', ', sort map { $_->{filename} } values %current_bases;
+        # add to group or start first
+        if (scalar @groups) {
+            # add to current, or create next
+            my $current_group_timestamp = $groups[-1][-1]{timestamp};
+            if ($diff->{timestamp} - $current_group_timestamp > $group_window) {
+                # new group
+                push @groups, [$diff];
+            } else {
+                # add to mr group
+                push @{$groups[-1]}, $diff;
+            } 
+        } else {
+            # first group
+            push @groups, [$diff];
+            next;
+        }
     } else {
-        new_group_file (\@groups, $next);
+        $current_bases{$base} = $file;
     }
 }
-
-
-# dump_current (\%current_files);
 
 #print Dumper \@groups;
 
@@ -93,13 +87,6 @@ sub timestamp_to_datetime {
     strftime "%Y-%m-%d %H:%M:%S", localtime ($timestamp / 10000000);
 }
 
-sub current_files {
-    my ($files) = @_;
-    foreach my $base (sort keys %$files) {
-        print "    $files->{$base}\n";
-    }
-}
-
 # dump out the groups in order
 sub dump_groups {
     my ($groups) = @_;
@@ -108,43 +95,26 @@ sub dump_groups {
     foreach my $group (@$groups) {
         $group_number++;
         print "\n\n\n";
-        print "=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* change group number $group_number.  start: ", timestamp_to_datetime ($group->{start_timestamp}), "\n";
-        foreach my $file_diff (@{$group->{files}}) {
-            $files{$file_diff->{base}} = $file_diff->{filename};
-            if ($file_diff->{preceding}) {
-                print "\n\n-------------------------------------\n";
+        print "=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* change group number $group_number.  start: ", timestamp_to_datetime ($group->[0]{timestamp}), "\n\n";
+        my $diff_number = 0;
+        my ($older, $newer);
+        foreach my $file_diff (@{$group}) {
+            $diff_number++;
+            # $files{$file_diff->{base}} = $file_diff->{filename};
+            if ($diff_number > 1) {
+                print "\n-------------------------------------\n";
             }
-            print '',
-                  ($file_diff->{preceding} ? "$file_diff->{preceding} -> " : ''),
-                  $file_diff->{filename}, 
-                  ' @ ', timestamp_to_datetime ($file_diff->{timestamp}), "\n";
-            #print "\n-------------------------------------\n";
-            if ($file_diff->{preceding}) {
-                print "\n\n";
-                system "diff -C 5 $file_diff->{preceding} $file_diff->{filename}";
-                print "\n";
-            } else {
-                print "first seen at this timestamp\n";
-            }
+            ($older, $newer) = @{$file_diff}{'older','newer'};
+            print "$older->{filename} -> $newer->{filename} @ ", timestamp_to_datetime ($newer->{timestamp}), "\n";
+            print "\n-------------------------------------\n";
+            print "\n\n";
+            system "diff -C 5 $older->{filename} $newer->{filename}";
+            print "\n";
+            print "Current file set (so far): ", $file_diff->{current}, ".\n";
+            print "\n\n";
         }
         print "\n\n";
-        dump_current (\%files);
-        print "=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* end: ", timestamp_to_datetime ($group->{end_timestamp}), "\n";
-    }
-}
-
-sub new_group_file {
-    my ($groups, $file) = @_;
-    push @{$groups->[-1]{files}}, $file;
-    $groups->[-1]{end_timestamp} = $file->{timestamp};
-}
-
-sub new_group {
-    my ($groups, $file) = @_;
-    push @$groups, {
-        start_timestamp => $file->{timestamp},
-        end_timestamp => $file->{timestamp},
-        files => [$file]
+        print "=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* end: ", timestamp_to_datetime ($newer->{timestamp}), "\n";
     }
 }
 
@@ -172,9 +142,6 @@ sub dump_sorted_files {
     }
     print "\n=====================================\n\n";
 };
-
-
-
 
 sub file_timestamp {
     my ($file) = @_;
