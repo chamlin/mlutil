@@ -100,10 +100,7 @@ sub dump_groups {
         my ($older, $newer);
         foreach my $file_diff (@{$group}) {
             $diff_number++;
-            # $files{$file_diff->{base}} = $file_diff->{filename};
-            if ($diff_number > 1) {
-                print "\n-------------------------------------\n";
-            }
+            if ($diff_number > 1) { print "\n-------------------------------------\n"; }
             ($older, $newer) = @{$file_diff}{'older','newer'};
             print "$older->{filename} -> $newer->{filename} @ ", timestamp_to_datetime ($newer->{timestamp}), "\n";
             print "\n-------------------------------------\n";
