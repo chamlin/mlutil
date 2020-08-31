@@ -8,7 +8,7 @@ my @directories = @ARGV;
 # this holds some global type stuff too
 my $options = {
     wanted => \&process,
-    filename_match => 'dv.*gov-ErrorLog.*',
+    filename_match => '.*ErrorLog.*txt',
     found => {},
     outdir => 'combined-logs',
 };
@@ -21,6 +21,9 @@ unless (-d $options->{outdir}) { mkdir $options->{outdir} }
 
 # print Dumper $options->{found};
 
+my $total_files = 0;
+
+
 for my $node (keys %{$options->{found}}) {
     print "\n# node: $node\n\n";
     my @node_paths = sort {
@@ -29,6 +32,7 @@ for my $node (keys %{$options->{found}}) {
 
     my ($f1, $f2) = (shift @node_paths, shift @node_paths);
     while ($f2) {
+        $total_files++;
         my ($s1, $e1) = @{$options->{found}{$node}{$f1}}{'start','end'};
         my ($s2, $e2) = @{$options->{found}{$node}{$f2}}{'start','end'};
         if ($s1 eq $s2) {
@@ -74,6 +78,7 @@ for my $node (keys %{$options->{found}}) {
     }
 
     # flush the remaining.  was only one, or better than the other(s)
+    $total_files++;
     my ($s1, $e1) = @{$options->{found}{$node}{$f1}}{'start','end'};
     print "## file: $f1\n";
     print "### $s1 -> $e1\n";
@@ -81,12 +86,14 @@ for my $node (keys %{$options->{found}}) {
 
     #    print "## file: $file\n";
     #    print "### $start -> $end\n";
-    #}
 }
+
+print "### total files: $total_files.\n";
 
 sub get_node_name {
     my ($filename) = @_;
-    substr ($filename, 0, 6);
+    my $first_six = substr ($filename, 0, 6);
+    return $first_six;
 };
 
 sub process {
