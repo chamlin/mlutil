@@ -11,6 +11,7 @@ my $options = {
     filename_match => '.*ErrorLog.*txt',
     found => {},
     outdir => 'combined-logs',
+    debug => 0,
 };
 
 find ($options, @directories);
@@ -19,7 +20,7 @@ print "\n\n\n";
 
 unless (-d $options->{outdir}) { mkdir $options->{outdir} }
 
-# print Dumper $options->{found};
+if ($debug) { die Dumper $options->{found} }
 
 my $total_files = 0;
 
@@ -91,9 +92,9 @@ for my $node (keys %{$options->{found}}) {
 print "### total files: $total_files.\n";
 
 sub get_node_name {
-    my ($filename) = @_;
-    my $first_six = substr ($filename, 0, 6);
-    return $first_six;
+    my ($dirname, $filename) = @_;
+    my $node_name = substr ($dirname, 0, 9);
+    return $node_name;
 };
 
 sub process {
@@ -110,7 +111,7 @@ sub process {
         }
         close (FH);
         if ($start && $end) {
-            my $node = get_node_name ($file);
+            my $node = get_node_name ($dir, $file);
             $options->{found}{$node}{$path} = { start => $start, end => $end }
         }
         else { print "# ! $path doesn't have start/end log lines found.\n"; }
