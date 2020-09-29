@@ -3,6 +3,7 @@ use strict;
 use File::Find;
 use Data::Dumper;
 
+# pass in top dir(s) to search
 my @directories = @ARGV;
 
 # this holds some global type stuff too
@@ -20,7 +21,7 @@ print "\n\n\n";
 
 unless (-d $options->{outdir}) { mkdir $options->{outdir} }
 
-if ($debug) { die Dumper $options->{found} }
+if ($options->{debug}) { die Dumper $options->{found} }
 
 my $total_files = 0;
 
