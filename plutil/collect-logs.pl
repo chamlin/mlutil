@@ -5,6 +5,7 @@ use Data::Dumper;
 
 # pass in top dir(s) to search
 my @directories = @ARGV;
+unless (scalar @directories) { push @directories, '.'; print STDERR "Assuming cwd as directory.\n" }
 
 # this holds some global type stuff too
 my $options = {
@@ -12,7 +13,8 @@ my $options = {
     filename_match => '.*ErrorLog.*txt',
     found => {},
     outdir => 'combined-logs',
-    debug => 0,
+    debug_node_name => 0,
+    debug_options => 0,
 };
 
 find ($options, @directories);
@@ -21,7 +23,7 @@ print "\n\n\n";
 
 unless (-d $options->{outdir}) { mkdir $options->{outdir} }
 
-if ($options->{debug}) { die Dumper $options->{found} }
+if ($options->{debug_options}) { die Dumper $options->{found} }
 
 my $total_files = 0;
 
@@ -95,6 +97,11 @@ print "### total files: $total_files.\n";
 sub get_node_name {
     my ($dirname, $filename) = @_;
     my $node_name = substr ($dirname, 0, 9);
+    $dirname =~ m/\/(.+)/;
+    $node_name = $1;
+
+    if ($options->{debug_node_name}) { print STDERR "($dirname,$filename) => $node_name\n"; }
+
     return $node_name;
 };
 
