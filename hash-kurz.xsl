@@ -6,15 +6,7 @@
     <xsl:output method="text"/>
 
     <xsl:template match="@* | node()">
-        <xsl:copy>
-            <xsl:apply-templates select="@* | node()"/>
-        </xsl:copy>
-    </xsl:template>
-    
-    <xsl:template match="cts:docx">
-        <xsl:variable name="terms" as="xs:string*"><xsl:apply-templates select="*"/></xsl:variable>
-        <xsl:variable name='sorted'><xsl:perform-sort select="$terms"><xsl:sort select="."/></xsl:perform-sort></xsl:variable>
-        <xsl:value-of select="$sorted"/>
+        <xsl:value-of select="concat ('>>>>', string (.))"/>
     </xsl:template>
 
     <xsl:template match="cts:doc">
@@ -25,6 +17,10 @@
 
     <xsl:template match="cts:term[not(exists(*))]">
         <xsl:value-of select="concat(@id, '[', @pos, ']')"/>
+    </xsl:template>
+    
+    <xsl:template match="cts:and-query[not(exists(*))]">
+        <!-- what is this for?  just place holder in element-query? -->
     </xsl:template>
 
     <xsl:template match="cts:term">
@@ -90,6 +86,8 @@
                     ' '
                 else
                     ''"/>
+        <xsl:value-of select="concat('?', string(.))"/>
+        <!--
         <xsl:choose>
             <xsl:when test="text() eq 'case-insensitive'">
                 <xsl:text>?c-i</xsl:text>
@@ -125,6 +123,7 @@
                 <xsl:value-of select="concat('?', string(.))"/>
             </xsl:otherwise>
         </xsl:choose>
+          -->
     </xsl:template>
 
 </xsl:stylesheet>
