@@ -6,7 +6,7 @@
     <xsl:output method="text"/>
 
     <xsl:template match="@* | node()">
-        <xsl:value-of select="concat ('>>>>', string (.))"/>
+        <xsl:value-of select="concat ('>>>> ', node-name (.), ': ', string(.))"/>
     </xsl:template>
 
     <xsl:template match="cts:doc">
@@ -65,12 +65,12 @@
     </xsl:template>
 
     <xsl:template match="cts:element">
-        <xsl:variable name="ename" select="cts:element/string()"/>
-        <xsl:value-of select="concat(' HUH? ', $ename)"/>
+        <xsl:variable name="s" select="cts:element/string()"/>
+        <xsl:value-of select="concat(' HUH? cts:element ', s)"/>
     </xsl:template>
 
     <xsl:template match="cts:near-query">
-        <xsl:variable name="queries" as="xs:string*"><xsl:apply-templates select="*[not(string(node-name()) eq 'cts:option')]"/></xsl:variable>
+        <xsl:variable name="queries" as="xs:string*"><xsl:apply-templates select="*[not(string(node-name(.)) eq 'cts:option')]"/></xsl:variable>
         <xsl:variable name="options" as="xs:string*"><xsl:call-template name="get-options"/></xsl:variable>
         <xsl:value-of select="concat ('cts:near-query((', string-join ($queries, ', '), ') ', @distance, ', (', $options, '))')"/>
     </xsl:template>
