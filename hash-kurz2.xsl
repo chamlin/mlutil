@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:cts="http://marklogic.com/cts"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:cts="http://marklogic.com/cts" xmlns:xdmp="http://marklogic.com/xdmp"
     exclude-result-prefixes="xs" version="2.0">
 
     <xsl:output method="text"/>
@@ -10,9 +10,10 @@
     </xsl:template>
 
     <xsl:template match="cts:doc">
+        <!--<xsl:variable name="terms" as="xs:string*"><xsl:apply-templates select="*[position() >= 0 and not(position() > 1000)]"/></xsl:variable>-->
         <xsl:variable name="terms" as="xs:string*"><xsl:apply-templates select="*"/></xsl:variable>
-        <xsl:variable name='sorted' as="xs:string*"><xsl:perform-sort select="$terms"><xsl:sort select="."/></xsl:perform-sort></xsl:variable>
-        <xsl:value-of select="string-join ($sorted, '&#x000D;')"/>
+        <xsl:variable name='sorted' as="xs:string*"><xsl:perform-sort select="distinct-values($terms)"><xsl:sort select="."/></xsl:perform-sort></xsl:variable>
+        <xsl:value-of select="string-join ($sorted, '&#x000A;')"/>
     </xsl:template>
 
     <xsl:template match="cts:term[not(exists(*))]">
@@ -37,16 +38,42 @@
         <xsl:apply-templates select="child::element()[2]"/>
         <xsl:value-of select="concat (', (', $options, '))')"/>
     </xsl:template>
+    
+    <xsl:template match="cts:element-attribute-word-query">
+        <xsl:variable name="ename" select="cts:element/string()"/>
+        <xsl:variable name="aname" select="cts:attribute/string()"/>
+        <xsl:variable name="options" as="xs:string*"><xsl:call-template name="get-options"/></xsl:variable>
+        <xsl:value-of select="concat('cts:element-attribute-word-query(xs:QName(', &apos;&quot;&apos;, $ename, &apos;&quot;&apos;, '), xs:QName(', &apos;&quot;&apos;, $aname, &apos;&quot;&apos;, '), ')"/>
+        <xsl:value-of select="concat (&apos;&quot;&apos;, cts:text/string(), &apos;&quot;&apos;, ', ')"/>
+        <xsl:value-of select="concat (', (', $options, '))')"/>
+    </xsl:template>
+
+    <xsl:template match="cts:element-attribute-value-query">
+        <xsl:variable name="ename" select="cts:element/string()"/>
+        <xsl:variable name="aname" select="cts:attribute/string()"/>
+        <xsl:variable name="options" as="xs:string*"><xsl:call-template name="get-options"/></xsl:variable>
+        <xsl:value-of select="concat('cts:element-attribute-value-query(xs:QName(', &apos;&quot;&apos;, $ename, &apos;&quot;&apos;, '), xs:QName(', &apos;&quot;&apos;, $aname, &apos;&quot;&apos;, '), ')"/>
+        <xsl:value-of select="concat (&apos;&quot;&apos;, cts:text/string(), &apos;&quot;&apos;, ', ')"/>
+        <xsl:value-of select="concat (', (', $options, '))')"/>
+    </xsl:template>
 
     <xsl:template match="cts:element-query/cts:element">
-        <!-- already take care of by parent -->
+        <!-- already take care of by parent --> 
     </xsl:template>
 
     <xsl:template match="cts:element-value-query">
-        <xsl:variable name="ename" select="cts:element/string()"/>
+        <xsl:variable name="ename" select="cts:element/string(.)"/>
         <xsl:variable name="options" as="xs:string*"><xsl:call-template name="get-options"/></xsl:variable>
         <xsl:variable name="text"
             select="concat('cts:element-value-query(xs:QName(', &apos;&quot;&apos;, $ename, &apos;&quot;&apos;, '), ', &apos;&quot;&apos;, cts:text/string(), &apos;&quot;&apos;, ', (', $options, '))')"/>
+        <xsl:value-of select="$text"/>
+    </xsl:template>
+    
+    <xsl:template match="cts:field-value-query">
+        <xsl:variable name="fname" select="cts:field/string(.)"/>
+        <xsl:variable name="options" as="xs:string*"><xsl:call-template name="get-options"/></xsl:variable>
+        <xsl:variable name="text"
+            select="concat('cts:field-value-query(xs:QName(', &apos;&quot;&apos;, $fname, &apos;&quot;&apos;, '), ', &apos;&quot;&apos;, cts:text/string(), &apos;&quot;&apos;, ', (', $options, '))')"/>
         <xsl:value-of select="$text"/>
     </xsl:template>
     
@@ -57,15 +84,23 @@
     </xsl:template>
 
     <xsl:template match="cts:element-word-query">
-        <xsl:variable name="ename" select="cts:element/string()"/>
+        <xsl:variable name="ename" select="cts:element/string(.)"/>
         <xsl:variable name="options" as="xs:string*"><xsl:call-template name="get-options"/></xsl:variable>
         <xsl:variable name="text"
             select="concat('cts:element-word-query(xs:QName(', &apos;&quot;&apos;, $ename, &apos;&quot;&apos;, '), ', &apos;&quot;&apos;, cts:text/string(), &apos;&quot;&apos;, ', (', $options, '))')"/>
         <xsl:value-of select="$text"/>
     </xsl:template>
+    
+    <xsl:template match="cts:field-word-query">
+        <xsl:variable name="fname" select="cts:field/string(.)"/>
+        <xsl:variable name="options" as="xs:string*"><xsl:call-template name="get-options"/></xsl:variable>
+        <xsl:variable name="text"
+            select="concat('cts:element-field-query(xs:QName(', &apos;&quot;&apos;, $fname, &apos;&quot;&apos;, '), ', &apos;&quot;&apos;, cts:text/string(), &apos;&quot;&apos;, ', (', $options, '))')"/>
+        <xsl:value-of select="$text"/>
+    </xsl:template>
 
     <xsl:template match="cts:element">
-        <xsl:variable name="s" select="cts:element/string()"/>
+        <xsl:variable name="s" select="cts:element/string(.)"/>
         <xsl:value-of select="concat(' HUH? cts:element ', s)"/>
     </xsl:template>
 
@@ -78,7 +113,7 @@
     <xsl:template match="cts:word-query">
         <xsl:variable name="options" as="xs:string*"><xsl:call-template name="get-options"/></xsl:variable>
         <xsl:variable name="text"
-            select="concat('cts:word-query(', &apos;&quot;&apos;, cts:text/string(), &apos;&quot;&apos;, ', (', $options, '))')"/>
+            select="concat('cts:word-query(', &apos;&quot;&apos;, cts:text/string(.), &apos;&quot;&apos;, ', (', $options, '))')"/>
         <xsl:value-of select="$text"/>
     </xsl:template>
 
@@ -113,6 +148,9 @@
             </xsl:when>
             <xsl:when test="text() eq 'descendant-or-self'">
                 <xsl:text>desc-or-self</xsl:text>
+            </xsl:when>
+            <xsl:when test="text() eq 'ordered'">
+                <xsl:text>ordered</xsl:text>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:value-of select="string(.)"/>
