@@ -491,7 +491,7 @@ sub do_file {
         if (length ($line) == 0) { next }
         if ($line =~ /^#\d/) {
             push @{$current->{lines}}, $line;
-        } elsif ($line =~ /^Thread .*Thread (0x[^\s]+) /) {
+        } elsif ($line =~ /^Thread .*Thread (0x[^\s]+) / || $line =~ /^Thread \d+ \(LWP (\d+)\):/) {
             my $thread_id = $1;
             if (scalar (@{$current->{lines}})) {
                 file_thread ($stats, $current);

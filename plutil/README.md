@@ -22,6 +22,35 @@ then
 
 use --reverse to generate reverse flamegraphs.
 
+### results
+
+pstack.log:  original file, containing the stack traces.  
+
+stack-sample-times.out:  a list of all times for pstacks found in the log.
+
+stack-stats.out:  lists stack signatures, by frequency, descending.  Each value left to right is a count in one pstack dump, so time moves left to right.
+
+static-threads.out:  threads that have the same signature across all pstacks.
+
+busy-threads.out:  threads that have differing signatures across the pstacks.  A list of the signatures is given.
+
+flame-reversed-info.out:  to create flamegraphs
+
+flame-info.out:  to create flamegraphs
+
+pstack.log-flame-reversed-info.out:  to create flamegraphs
+
+pstack.log-flame-info.out:  to create flamegraphs
+
+stack-call-counts.out:  how many times functions were called
+
+stack-call-stats.tsv:  some stack call stats in tsv
+
+flame-info.out.svg:  the flamegraph, if you created it
+
+flame-reversed-info.out.svg: the reversed flamegraph, if you created it
+
+
 ## pull_threads.pl
 
 extract segfault stack traces from a log file.

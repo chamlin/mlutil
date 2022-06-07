@@ -107,7 +107,7 @@
     <xsl:template match="cts:near-query">
         <xsl:variable name="queries" as="xs:string*"><xsl:apply-templates select="*[not(string(node-name(.)) eq 'cts:option')]"/></xsl:variable>
         <xsl:variable name="options" as="xs:string*"><xsl:call-template name="get-options"/></xsl:variable>
-        <xsl:value-of select="concat ('cts:near-query((', string-join ($queries, ', '), ') ', @distance, ', (', $options, '))')"/>
+        <xsl:value-of select="concat ('cts:near-query((', string-join ($queries, ', '), '), ', @distance, ', (', $options, '))')"/>
     </xsl:template>
 
     <xsl:template match="cts:word-query">
