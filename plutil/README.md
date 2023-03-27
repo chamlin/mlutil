@@ -74,3 +74,14 @@ convert sar to a big xml file.
 suitable for load as
 
 ~/mlcp/bin/mlcp.sh import -input_file_path events.xml -input_file_type aggregates -host localhost -port 8000 -username admin -password admin -database logio-content
+
+## unfunk.pl
+
+removed funky link scrambling; may need extending, but so far has worked.
+
+run as a filter, or give the source file name on the command line.
+
+Output:
+- stdout:  new version of the source file
+- stderr:  shows the changes it makes
+
