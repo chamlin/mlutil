@@ -519,6 +519,9 @@ sub do_file {
 sub iso_from_pstack {
     my ($s) = @_;
     my ($day, $mo, $date, $time, $offset, $year) = split (/\s+/, $s);
+    if ($mo =~ m/\d+/) {
+        ($day, $date, $mo, $time, $offset, $year) = split (/\s+/, $s);
+    }
     my %mos = (
         Jan => 1, Feb => 2, Mar => 3, Apr => 4, May => 5, Jun => 6, Jul => 7, Aug => 8, Sep => 9, Oct => 10, Nov => 11, Dec => 12
     );
