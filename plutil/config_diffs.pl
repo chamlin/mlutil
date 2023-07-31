@@ -29,8 +29,6 @@ foreach my $file (@files) {
     }
 } @files;
 
-die Dumper (@files);
-
 dump_sorted_files (@files);
 
 # create timestamp-ordered diffs and init groups
