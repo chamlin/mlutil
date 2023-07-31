@@ -146,6 +146,7 @@ sub file_timestamp {
     open (my $fh, "<", $file->{filename}) or die "cannot open $file->{filename}: $!";
     for (my $i = 0; $i < 5; $i++) {
         my $line = <$fh>;
+        unless ($line) { next }
         if ($line =~ /timestamp\s*=\s*['"](\d+)['"]/) {
             $file->{timestamp} = $1;
             last;
