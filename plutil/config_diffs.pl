@@ -29,6 +29,8 @@ foreach my $file (@files) {
     }
 } @files;
 
+die Dumper (@files);
+
 dump_sorted_files (@files);
 
 # create timestamp-ordered diffs and init groups
@@ -142,6 +144,7 @@ sub dump_sorted_files {
 
 sub file_timestamp {
     my ($file) = @_;
+    # default of 1969-12-31 19:00:00 or so
     $file->{timestamp} = 0;
     open (my $fh, "<", $file->{filename}) or die "cannot open $file->{filename}: $!";
     for (my $i = 0; $i < 5; $i++) {
