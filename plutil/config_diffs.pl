@@ -153,5 +153,8 @@ sub file_timestamp {
             last;
         }
     }
+    if ($file->{timestamp} == 0) {
+        print STDERR "No timestamp for $file->{filename}.\n";
+    }
     close ($fh);
 };
