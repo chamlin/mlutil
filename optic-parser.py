@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser (
 )
 
 parser.add_argument ('-file', dest='logfile', required=True, help='log file to scan')
-parser.add_argument ('-debug', dest='debug', default=False, help='debug output, True or False')
+#parser.add_argument ('-debug', dest='debug', default=False, help='debug output, True or False')
 parser.add_argument ('-clean', dest='clean', default=False, help='strip date-time and log level, True or False')
 
 outdir = './optic-info'
@@ -29,14 +29,14 @@ current_event = None
 current_trace = None
 
 def update_times (trace, date_time, times):
-    #print (f'>  {date_time} for {repr (times)}')
+    # print (f'>  {date_time} for {repr (times)}')
     if not trace in times:
         times[trace] = {'start': date_time, 'end': date_time}
     if date_time < times[trace]['start']:
         times[trace]['start'] = date_time
     if date_time > times[trace]['end']:
         times[trace]['end'] = date_time
-    #print (f'<  {date_time} for {repr (times)}')
+    # print (f'<  {date_time} for {repr (times)}')
 
 
 line_number = 0
